@@ -2,7 +2,8 @@
 type state_type = S | F | K;; (* S = Startzustand; F = Finalzustand K = Kein Start- oder Endzustand *)
 type dfa_transition = state_type * int * int * int ;;
 
-type nfa_transition_list = state_type * int list * int list * int list ;;
+type nfa_transition_list = state_type * int list * int list * int list ;; 
+ 
 type dfa_transition_table = nfa_transition_list ;; 
 
 type candidates = dfa_transition_table * dfa_transition_table ;;
@@ -27,6 +28,7 @@ let tabelle_1 = [(S,1,1,2);(K,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle_2 = [(S,5,6,7);(K,6,5,8);(K,7,9,9);(K,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
 
 let candidates =  (tabelle_1, tabelle_2) ;;
+let joinTable tabelle_1, tabelle_2 ;;
 
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Main-Programm ~~~~~~~~~~~~~~~~~~~~~~~~ *)
