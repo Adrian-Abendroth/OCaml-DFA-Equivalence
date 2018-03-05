@@ -14,6 +14,7 @@ type equivalence_result = bool * min_dfa_transition_table;;
 	type nfa_transition_table = nfa_transition list;;
 
 
+
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle2  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
@@ -25,11 +26,15 @@ let (tab1, tab2) = candidates;;
 let candidateList = tab1 @ tab2;;
 
 
-
 (* ~~~~~~~~~~~~~~~~~~ Allgemeine Funktionen ~~~~~~~~~~~~~~~~~~~ *)
 let ( ! ) a = not a;;
 let xor x y = (x && !y)||(!x && y);;
 let ( % ) dividend divisor = dividend mod divisor;;
+let ( ^* ) str b =
+	match b with
+	| true -> str
+	| false -> ""
+;;
 
 
 let rec getNElement ls element =
@@ -60,10 +65,15 @@ let print_bool expression  =
 	| false -> print_string "false"  
 ;;
 
-let rec print_boolean_table ls row column =
+let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + row);;
+
+let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
+
+let rec print_boolean_table (columnHeight, rowWidth) ls row column =
 	let rec recursion i =
 		if i < (row * column) 
-			then( print_boolInt (getNElement ls i); print_string "|";
+			then( print_boolInt (getNElement ls i);
+			print_string ("|" ^* (let (_, y) = decode2D (columnHeight, rowWidth) i in !(column-1 = y)));
 			(if ((i+1) % column = 0)
 				then print_string "\n"
 			); recursion (i+1));
@@ -99,14 +109,15 @@ let print_candidates (a, b) =
 
 let rec lenght ls =
 	match ls with
-	| [] -> 0  | [_] -> 1
+	| [] -> 0  
+	| [_] -> 1
 	| hd::tl -> 1+(lenght tl)
 ;;
 
 let rec contains element ls = 
 	match ls with
 	| hd::tl -> if (hd = element) then true else (contains element tl)
-	| []   -> false
+	| [] -> false
 ;;
 
 let rec containsAmount element ls =
@@ -162,9 +173,6 @@ let getPositioninTable knot =
 	
 let rowWidth, columnHeight = (lenght tab1)+(lenght tab2), (lenght tab1)+(lenght tab2);;
 
-let encode2D row column = ((column * columnHeight) + row);;
-
-let decode2D value = (value / columnHeight, value % columnHeight);;
 
 
 
@@ -188,17 +196,17 @@ let beTrue _ _ =
 ;;
 
 let streiche ls element =
-	let (x,y) = decode2D element in
+	let (x,y) = decode2D (columnHeight, rowWidth) element in
 	let (_, a, a0, a1) = (getNElement candidateList y) in
 	let (_, b, b0, b1) = (getNElement candidateList x) in
-		(getNElement ls (encode2D (getPositioninTable a0) (getPositioninTable b0))) 
-	||	(getNElement ls (encode2D (getPositioninTable a1) (getPositioninTable b1)))
+		(getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable a0) (getPositioninTable b0))) 
+	||	(getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable a1) (getPositioninTable b1)))
 ;;
 
 let areDifferentState ls where =
-	let (x, y) = (decode2D where) in
+	let (x, y) = (decode2D (columnHeight, rowWidth) where) in
 	let (sx, _, _, _), (sy, _, _, _) = getNElement candidateList x, getNElement candidateList y in
-	if (xor (isFinal sx) (isFinal sy)) then true else false
+	(xor (isFinal sx) (isFinal sy))
 ;;
 
 
@@ -211,21 +219,21 @@ print_string "\n";;
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
 (* let tabelle = (filling_table, rowWidth, columnHeight);; *)
 
-print_boolean_table filling_table rowWidth columnHeight;; 
+print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; 
 
 let filling_table = forl beTrue areDifferentState false ((rowWidth * columnHeight)-1) filling_table;;
-print_boolean_table filling_table rowWidth columnHeight;;
+print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
 (* let filling_table = forl streiche getNElement true ((rowWidth * columnHeight)-1) filling_table;; *)
-(* print_boolean_table filling_table rowWidth columnHeight;; *)
+(* print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; *)
 
 let filling_table =
 	let rec recursion ft = (
-		(* print_boolean_table ft rowWidth columnHeight; *)
+		(* print_boolean_table (columnHeight, rowWidth) ft rowWidth columnHeight; *)
 		let new_filling_table = (forl streiche getNElement true ((rowWidth * columnHeight)-1) ft) in
 		if (ft = new_filling_table)
 			then (ft)
-			else (print_boolean_table new_filling_table rowWidth columnHeight; recursion new_filling_table)
+			else (print_boolean_table (columnHeight, rowWidth) new_filling_table rowWidth columnHeight; recursion new_filling_table)
 			(* else (recursion new_filling_table) *)
 	);
 	in recursion filling_table
@@ -236,7 +244,7 @@ let allaequivalenzklassen =
 		
 	in recursion
 ;; *)
-(* print_boolean_table filling_table rowWidth columnHeight;; *)
+(* print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; *)
 
 
 let ausgabae =

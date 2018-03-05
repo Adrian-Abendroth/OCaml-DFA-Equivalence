@@ -8,3 +8,4 @@
 *.cmo
 Ocaml test/fragenotworking.ml
 Ocaml test/frageworking.ml
+Ocaml test/Comp
