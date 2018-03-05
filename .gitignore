@@ -6,3 +6,5 @@
 .DS_Store
 *.cmi
 *.cmo
+Ocaml test/fragenotworking.ml
+Ocaml test/frageworking.ml
