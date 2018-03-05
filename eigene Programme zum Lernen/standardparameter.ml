@@ -1,6 +1,7 @@
-let odp a ?(b = "Standard") () = print_string a; print_string " "; print_string b;;
+let func p1 ?(p2 = "Standard") () = 
+	print_string p1; print_string " "; print_string p2;;
 
 
-odp "String 1 with" ~b:"String 2" ();;
+func "String 1 with" ~p2:"String 2" ();;
 print_string "\n";;
-odp "String 1 only" ();;
+func "String 1 only" ();;
