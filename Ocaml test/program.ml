@@ -15,6 +15,15 @@ type equivalence_result = bool * min_dfa_transition_table;;
 
 
 
+(* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
+let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
+let tabelle2  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
+let tabelle1min  = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 *)
+let tabelle2min  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 *)
+let candidates  = (tabelle1min, tabelle2min);;
+
+let (tab1, tab2) = candidates;;
+let candidateList = tab1 @ tab2;;
 
 
 (* ~~~~~~~~~~~~~~~~~~ Allgemeine Funktionen ~~~~~~~~~~~~~~~~~~~ *)
@@ -130,7 +139,7 @@ let rec make ls count element =
     | [] -> if count = 0 then [] else element :: (make [] (count-1) element)
     | hd::tl -> hd :: (make tl count element)
 ;;
-print_string "noooob";;
+
 let isStart zustand = 
 	match zustand with s -> s = S || s = SF
 ;;
@@ -140,7 +149,18 @@ let isFinal zustand =
 ;;
 
 
-let getPositioninTable candidateList knot = 
+let getTransitionByPoint knot =
+	let rec recursion ls = 
+		match ls with
+		| [] -> failwith "Unknown knot"
+		| hd::tl -> (
+			let (_, k, t0, t1) = hd in
+			if (knot = k) then ((t0, t1)) else (recursion tl)
+		);
+	in recursion candidateList
+;;
+	
+let getPositioninTable knot = 
 	let rec recursion ls i = 
 		match ls with
 		| [] -> failwith ("Unknown knot: " ^ (string_of_int knot))
@@ -151,6 +171,7 @@ let getPositioninTable candidateList knot =
 	in recursion candidateList 0
 ;;
 	
+let rowWidth, columnHeight = (lenght tab1)+(lenght tab2), (lenght tab1)+(lenght tab2);;
 
 
 
@@ -174,33 +195,21 @@ let beTrue _ _ =
 	true
 ;;
 
-let streiche candidateList (columnHeight, rowWidth) ls element =
+let streiche ls element =
 	let (x,y) = decode2D (columnHeight, rowWidth) element in
 	let (_, a, a0, a1) = (getNElement candidateList y) in
 	let (_, b, b0, b1) = (getNElement candidateList x) in
-		(getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a0) (getPositioninTable candidateList b0))) 
-	||	(getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a1) (getPositioninTable candidateList b1)))
+		(getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable a0) (getPositioninTable b0))) 
+	||	(getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable a1) (getPositioninTable b1)))
 ;;
 
-let areDifferentState candidateList (columnHeight, rowWidth) ls where =
+let areDifferentState ls where =
 	let (x, y) = (decode2D (columnHeight, rowWidth) where) in
 	let (sx, _, _, _), (sy, _, _, _) = getNElement candidateList x, getNElement candidateList y in
 	(xor (isFinal sx) (isFinal sy))
 ;;
 
 
-
-
-(* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
-let tabelle1 = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
-let tabelle2 = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
-let tabelle1min = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 *)
-let tabelle2min = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 *)
-let candidates  = (tabelle1min, tabelle2min);;
-
-let (tab1, tab2) = candidates;;
-let candidateList = tab1 @ tab2;;
-let rowWidth, columnHeight = (lenght tab1)+(lenght tab2), (lenght tab1)+(lenght tab2);;
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Main-Programm ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 
@@ -212,16 +221,16 @@ let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekre
 
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; 
 
-let filling_table = forl beTrue areDifferentState candidateList (columnHeight, rowWidth) false ((rowWidth * columnHeight)-1) filling_table;;
+let filling_table = forl beTrue areDifferentState false ((rowWidth * columnHeight)-1) filling_table;;
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
-(* let filling_table = forl streiche candidateList (columnHeight, rowWidth) getNElement true ((rowWidth * columnHeight)-1) filling_table;; *)
+(* let filling_table = forl streiche getNElement true ((rowWidth * columnHeight)-1) filling_table;; *)
 (* print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; *)
 
 let filling_table =
 	let rec recursion ft = (
 		(* print_boolean_table (columnHeight, rowWidth) ft rowWidth columnHeight; *)
-		let new_filling_table = (forl streiche candidateList (columnHeight, rowWidth) getNElement true ((rowWidth * columnHeight)-1) ft) in
+		let new_filling_table = (forl streiche getNElement true ((rowWidth * columnHeight)-1) ft) in
 		if (ft = new_filling_table)
 			then (ft)
 			else (print_boolean_table (columnHeight, rowWidth) new_filling_table rowWidth columnHeight; recursion new_filling_table)
