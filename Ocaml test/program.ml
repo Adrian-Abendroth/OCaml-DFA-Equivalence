@@ -4,7 +4,7 @@
 type state_type = S | F | N | SF;; (* S = Startzustand; F = Finalzustand; N = Normaler Zustand *)
 
 type dfa_transition = state_type * int * int * int;; 
-type dfa_transition_table = dfa_transition list;; (* [dfa_transition,dfa_transition] *)
+type dfa_transition_table = dfa_transition list;; 
 type candidates = dfa_transition_table * dfa_transition_table;;
 type min_dfa_transition = state_type * int list * int list * int list;;
 type min_dfa_transition_table = min_dfa_transition list;;
@@ -74,6 +74,7 @@ let rec print_boolean_table (columnHeight, rowWidth) ls row column =
 let rec print_int_list ls = 
    match ls with
    | [] -> ()
+   | [x] -> print_int x
    | hd::tl -> print_int hd; print_string ", "; print_int_list tl
 ;;
 
@@ -88,10 +89,27 @@ let rec print_dfa_transition (state_type, name, partner0, partner1) =
    print_int partner1; print_string "\n"
 ;;
 
+let rec print_min_dfa_transition (state_type, name, partner0, partner1) =
+   (match state_type with
+      | S ->  print_string " >"
+      | F ->  print_string " *"
+      | N ->  print_string "  "
+      | SF -> print_string ">*" );
+   print_int_list name; print_string " | ";
+   print_int_list partner0; print_string " | ";
+   print_int_list partner1; print_string "\n"
+;;
+
 let rec print_dfa_transition_table dfa_transition_table = 
    match dfa_transition_table with
    | [] -> ()
    | hd::tl -> print_dfa_transition hd; print_dfa_transition_table tl
+;; 
+
+let rec print_min_dfa_transition_table min_dfa_transition_table = 
+   match min_dfa_transition_table with
+   | [] -> ()
+   | hd::tl -> print_min_dfa_transition hd; print_min_dfa_transition_table tl
 ;; 
 
 let print_candidates (a, b) =
@@ -181,31 +199,31 @@ let forl candidateList (columnHeight, rowWidth) func condition reversecondition 
    in recursion ls 0
 ;;
 
-let beTrue _ _ _ _ = 
-   true
-;;
-
-let streiche candidateList (columnHeight, rowWidth) ls element =
+let strike_out_element candidateList (columnHeight, rowWidth) ls element =
    let (x,y) = decode2D (columnHeight, rowWidth) element in
-   let (_, a, a0, a1) = (getNElement (columnHeight, rowWidth) candidateList y) in
-   let (_, b, b0, b1) = (getNElement (columnHeight, rowWidth) candidateList x) in
+   let (_, _, a0, a1) = (getNElement (columnHeight, rowWidth) candidateList y) in
+   let (_, _, b0, b1) = (getNElement (columnHeight, rowWidth) candidateList x) in
       (getNElement (columnHeight, rowWidth) ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a0) (getPositioninTable candidateList b0))) 
    ||   (getNElement (columnHeight, rowWidth) ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a1) (getPositioninTable candidateList b1)))
 ;;
 
-let areDifferentState candidateList (columnHeight, rowWidth) ls where =
+let areDifferentState candidateList (columnHeight, rowWidth) where =
    let (x, y) = (decode2D (columnHeight, rowWidth) where) in
    let (sx, _, _, _), (sy, _, _, _) = getNElement (columnHeight, rowWidth) candidateList x, getNElement (columnHeight, rowWidth) candidateList y in
    (xor (isFinal sx) (isFinal sy))
+;;
+
+let minimize dfa_transition_table = (*TODO: nicht erreichbare Zustände (nicht unbedingt nötig, würde nur Performance stark verbessern) und gleiche rausschmeißen*)
+   dfa_transition_table
 ;;
 
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle2  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
-let tabelle1min  = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 *)
-let tabelle2min  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 *)
-let candidates  = (tabelle1min, tabelle2min);;
+let tabelle1min  = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 selbst minimiert*)
+let tabelle2min  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 selbst minimiert*)
+let candidates  = (minimize tabelle1, minimize tabelle2);;
 
 let (tab1, tab2) = candidates;;
 let candidateList = tab1 @ tab2;;
@@ -221,31 +239,27 @@ let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekre
 
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; 
 
-let filling_table = forl candidateList (columnHeight, rowWidth) beTrue areDifferentState false ((rowWidth * columnHeight)-1) filling_table;;
-print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
-
-(* let filling_table = forl streiche getNElement true ((rowWidth * columnHeight)-1) filling_table;; *)
-(* print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; *)
-
-let forl candidateList (columnHeight, rowWidth) func condition reversecondition endvalue ls =
+let forl candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion ls i =
       if i <= endvalue 
          then (
-            if (if reversecondition then (not (condition candidateList (columnHeight, rowWidth) ls i)) else (condition candidateList (columnHeight, rowWidth) ls i))
-               then recursion (setNElement ls i (func candidateList (columnHeight, rowWidth) ls i)) (i+1)
+            if (areDifferentState candidateList (columnHeight, rowWidth) i)
+               then recursion (setNElement ls i true) (i+1)
                else recursion ls (i+1)
             )
          else ls
    in recursion ls 0
 ;;
 
-let streichen candidateList (columnHeight, rowWidth) endvalue ls =
+let filling_table = forl candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
+print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
+
+let strike_out candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion ls i =
       if i <= endvalue 
          then (
             if (not (getNElement (columnHeight, rowWidth) ls i))
-            
-               then recursion (setNElement ls i (streiche candidateList (columnHeight, rowWidth) ls i)) (i+1)
+               then recursion (setNElement ls i (strike_out_element candidateList (columnHeight, rowWidth) ls i)) (i+1)
                else recursion ls (i+1)
             )
          else ls
@@ -254,30 +268,27 @@ let streichen candidateList (columnHeight, rowWidth) endvalue ls =
 
 let filling_table =
    let rec recursion ft = (
-      (* print_boolean_table (columnHeight, rowWidth) ft rowWidth columnHeight; *)
-      let new_filling_table = (streichen candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) ft) in
+      let new_filling_table = (strike_out candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) ft) in
       
       if (ft = new_filling_table)
          then (ft)
          else (print_boolean_table (columnHeight, rowWidth) new_filling_table rowWidth columnHeight; recursion new_filling_table)
-         (* else (recursion new_filling_table) *)
    );
    in recursion filling_table
 ;;
-(*
-let allaequivalenzklassen =
-   let rec recursion =
-      
-   in recursion
-;; *)
-(* print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; *)
 
 
 let ausgabae =
    match (containsAmount false filling_table) with
    | i when i = rowWidth -> (false, [])
    | i when i > rowWidth -> ( true,
-[]
+[] (*TODO: Äquivalentklassen finden und folgendes erstellen:*)
+(*[
+(S,[1;5;6],[1;5;6],[2;7;8]);
+(N,[2;7;8],[3;9],[3;9]);
+(F,[3;9],[3;9],[2;7;8])
+]*)
+(* print_min_dfa_transition_table [(S,[1;5;6],[1;5;6],[2;7;8]);(N,[2;7;8],[3;9],[3;9]);(F,[3;9],[3;9],[2;7;8])];; *)
 
 
 
