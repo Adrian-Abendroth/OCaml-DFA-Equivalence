@@ -18,8 +18,13 @@ type equivalence_result = bool * min_dfa_transition_table;;
 
 
 (* ~~~~~~~~~~~~~~~~~~ Allgemeine Funktionen ~~~~~~~~~~~~~~~~~~~ *)
+(** Not operator *)
 let ( ! ) a = not a;;
+
+(** Xor operator *)
 let xor x y = (x && !y)||(!x && y);;
+
+(** Modulo operator *)
 let ( % ) dividend divisor = dividend mod divisor;;
 let ( ^* ) str b =
    match b with
@@ -27,7 +32,14 @@ let ( ^* ) str b =
    | false -> ""
 ;;
 
-
+(** Gets position from a list
+    Input:
+        list, 
+        element (position)
+    Output:
+        element in position 
+        
+*)
 let rec getNElement ls element =
    if element < 0 then failwith "Out of bounds";
    match ls with
@@ -35,6 +47,15 @@ let rec getNElement ls element =
    | hd::tl -> if element=0 then hd else getNElement tl (element-1)
 ;;
 
+(** Sets value for an element in list from its position
+    Input:
+        list, 
+        element (position),
+        value
+    Output:
+        list with new value in position element
+        
+*)
 let rec setNElement ls element value=
    if element < 0 then failwith "Out of bounds";
    match ls with
@@ -44,22 +65,59 @@ let rec setNElement ls element value=
       else hd::(setNElement tl (element-1) value)
 ;;
 
+(** Prints boolean as int 0 or 1
+    Input:
+        expression
+    Output:
+        string
+*)
 let print_boolInt expression  =
    match expression with
    | true -> print_int 1  
    | false -> print_int 0
 ;;
 
+(** Prints boolean as string
+    Input:
+        expression
+    Output:
+        string
+*)
 let print_bool expression  =
    match expression with
    | true -> print_string "true"  
    | false -> print_string "false"  
 ;;
 
+(** Encodes Platzhalter a to a 2d List
+    Input:
+        tuple of (columnHeight, rowWidth),
+        row,
+        column
+    Output:
+        List
+*)
 let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + row);;
 
+(** Decodes a 2d List to a Platzhalter
+    Input:
+        tuple of (columnHeight, rowWidth),
+        row,
+        column
+    Output:
+        string
+*)
 let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
 
+(** Prints table with boolean values to see which states are aquivalent
+    Input:
+        tuple of (columnHeight, rowWidth),
+        list,
+        row,
+        column
+    Output:
+        table of booleans
+*)
 let rec print_boolean_table (columnHeight, rowWidth) ls row column =
    let rec recursion i =
       if i < (row * column) 
@@ -71,6 +129,12 @@ let rec print_boolean_table (columnHeight, rowWidth) ls row column =
    in recursion 0; print_string "\n"
 ;;
 
+(** Prints integer list
+    Input:
+        list
+    Output:
+        integerlist as string
+*)
 let rec print_int_list ls = 
    match ls with
    | [] -> ()
@@ -78,6 +142,12 @@ let rec print_int_list ls =
    | hd::tl -> print_int hd; print_string ", "; print_int_list tl
 ;;
 
+(** Prints integer list list
+    Input:
+        list
+    Output:
+        integer list list as string
+*)
 let rec print_int_list_list ls = 
    match ls with
    | [] -> ()
@@ -85,6 +155,12 @@ let rec print_int_list_list ls =
    | hd::tl -> print_string "["; print_int_list hd; print_string "];\n"; print_int_list_list tl;
 ;;
 
+(** Prints dfa_transitions
+    Input:
+        quadtuple (state_type, name, partner0, partner1)
+    Output:
+        dfa_transitions as string table
+*)
 let rec print_dfa_transition (state_type, name, partner0, partner1) =
    (match state_type with
       | S ->  print_string " >"
@@ -96,6 +172,12 @@ let rec print_dfa_transition (state_type, name, partner0, partner1) =
    print_int partner1; print_string "\n"
 ;;
 
+(** Prints min_dfa_transition 
+    Input:
+        quadtuple (state_type, name, partner0, partner1)
+    Output:
+        min_dfa_transition as string
+*)
 let rec print_min_dfa_transition (state_type, name, partner0, partner1) =
    (match state_type with
       | S ->  print_string " >"
@@ -107,22 +189,46 @@ let rec print_min_dfa_transition (state_type, name, partner0, partner1) =
    print_int_list partner1; print_string "\n"
 ;;
 
+(** Prints dfa_transition as table
+    Input:
+        quadtuple (state_type, name, partner0, partner1)
+    Output:
+        min_dfa_transition as string table
+*)
 let rec print_dfa_transition_table dfa_transition_table = 
    match dfa_transition_table with
    | [] -> ()
    | hd::tl -> print_dfa_transition hd; print_dfa_transition_table tl
 ;; 
 
+(** Prints min_dfa_transition_table
+    Input:
+        min_dfa_transition_table
+    Output:
+        min_dfa_transition  as string table
+*)
 let rec print_min_dfa_transition_table min_dfa_transition_table = 
    match min_dfa_transition_table with
    | [] -> ()
    | hd::tl -> print_min_dfa_transition hd; print_min_dfa_transition_table tl
 ;; 
 
+(** Prints candidates
+    Input:
+        candidates as tuple (a,b)
+    Output:
+        canditates as string table
+*)
 let print_candidates (a, b) =
    print_dfa_transition_table a ; print_string "\n"; print_dfa_transition_table b
 ;;
 
+(** Determine length of list
+    Input:
+        list
+    Output:
+        length of list
+*)
 let rec lenght ls =
    match ls with
    | [] -> 0  
@@ -130,12 +236,26 @@ let rec lenght ls =
    | hd::tl -> 1+(lenght tl)
 ;;
 
+(** Determine if list contains element
+    Input:
+        element,
+        list
+    Output:
+        boolean 
+*)
 let rec contains element ls = 
    match ls with
    | hd::tl -> if (hd = element) then true else (contains element tl)
    | [] -> false
 ;;
 
+(** Determine how often a element is in a list
+    Input:
+        element,
+        list
+    Output:
+        integer
+*)
 let rec containsAmount element ls =
    match ls with
    | hd::tl -> if (hd = element) 
@@ -145,26 +265,56 @@ let rec containsAmount element ls =
 ;;   
 
 
-
-
-
-
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Funktionen ~~~~~~~~~~~~~~~~~~~~~~~~ *)
+(** Determine how often a element is in a list
+    Input:
+        list,
+        count,
+        element
+    Output:
+        list of booleans
+*)
+(** Makes a boolean false table for table-filling algorithm
+    Input:
+        ls,
+        count,
+        element
+    Output:
+        boolean
+*)
 let rec make ls count element = 
    match ls with
     | [] -> if count = 0 then [] else element :: (make [] (count-1) element)
     | ls -> ls @ (make [] count element)
 ;;
 
+(** Determine if a state is a start-state
+    Input:
+        state
+    Output:
+        boolean
+*)
 let isStart zustand = 
    match zustand with s -> s = S || s = SF
 ;;
 
+(** Determine if a state is a final-state
+    Input:
+        state
+    Output:
+        boolean
+*)
 let isFinal zustand = 
    match zustand with s -> s = F || s = SF
 ;;
 
-
+(** Shows where a state is going to transitions
+    Input:
+        canditateList,
+        knot
+    Output:
+        gets transitions of knot
+*)
 let getTransitionByPoint candidateList knot =
    let rec recursion ls = 
       match ls with
@@ -176,6 +326,13 @@ let getTransitionByPoint candidateList knot =
    in recursion candidateList
 ;;
 
+(** Get state of a knot
+    Input:
+        canditateList,
+        knot
+    Output:
+        state of a knot
+*)
 let getStateByPoint candidateList knot =
    let rec recursion ls = 
       match ls with
@@ -186,7 +343,14 @@ let getStateByPoint candidateList knot =
       );
    in recursion candidateList
 ;;
-   
+
+(** Get Position in table of a knot
+    Input:
+        canditateList,
+        knot
+    Output:
+        Position of knot
+*)
 let getPositioninTable candidateList knot = 
    let rec recursion ls i = 
       match ls with
@@ -199,10 +363,14 @@ let getPositioninTable candidateList knot =
 ;;
    
 
-
-
-
-
+(** Function for table-filling-algorithm. Determines if the table don't have an aquivalence class
+    Input:
+        candidateList (columnHeight, rowWidth),
+        ls,
+        element
+    Output:
+        table of booleans
+*)
 let strike_out_element candidateList (columnHeight, rowWidth) ls element =
    let (x,y) = decode2D (columnHeight, rowWidth) element in
    let (_, _, a0, a1) = (getNElement candidateList y) in
@@ -211,6 +379,13 @@ let strike_out_element candidateList (columnHeight, rowWidth) ls element =
    ||   (getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a1) (getPositioninTable candidateList b1)))
 ;;
 
+(** Checks if a states of boolean-table are different
+    Input:
+        candidateList (columnHeight, rowWidth),
+        where 
+    Output:
+        boolean
+*)
 let areDifferentState candidateList (columnHeight, rowWidth) where =
    let (x, y) = (decode2D (columnHeight, rowWidth) where) in
    let (sx, _, _, _) = getNElement candidateList x in
@@ -218,7 +393,16 @@ let areDifferentState candidateList (columnHeight, rowWidth) where =
    (xor (isFinal sx) (isFinal sy))
 ;;
 
-
+(** Marks state in table of booleans when they are final and start
+    Input:
+        candidateList (columnHeight, rowWidth) 
+        endvalue.
+        ls
+      
+    Output:
+    table of booleans
+        
+*)
 let strike_finals candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion ls i =
       if i <= endvalue 
@@ -231,6 +415,16 @@ let strike_finals candidateList (columnHeight, rowWidth) endvalue ls =
    in recursion ls 0
 ;;
 
+(** Computes aequivalence classes
+    Input:
+        candidateList (columnHeight, rowWidth) 
+        endvalue.
+        ls
+      
+    Output:
+    aequivalenz classes as a table of string
+        
+*)
 let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion i =
       if i <= endvalue 
@@ -253,17 +447,41 @@ let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
    in recursion 0
 ;;
 
+(** Prints tuple as string
+    Input:
+        tuple
+      
+    Output:
+        String of tuple
+        
+*)
 let print_int_2_tuple a =
    let (x,y) = a in
    print_int x; print_string ", "; print_int y
 ;;
 
+(** Prints aquivalence classes
+    Input:
+        aquivalence-class
+      
+    Output:
+        String of table
+        
+*)
 let rec print_aquivalenzklasse a =
    match a with
    | [] -> ()
    | hd::tl -> print_string "["; print_int_2_tuple hd; print_string "]\n"; print_aquivalenzklasse tl
 ;;
 
+(** Prints aquivalence classes
+    Input:
+        aquivalence-class
+      
+    Output:
+        String of table
+        
+*)
 let rec get_aequivalenztuple element ls =
    match ls with
    | [] -> []
