@@ -703,7 +703,7 @@ let rec getListOfPointersNames ls =
    )
 ;;
 
-let minimize dfa_transition_table = (*TODO: nicht erreichbare Zustände und gleiche rausschmeißen *)
+let checkforInputErrors dfa_transition_table = (*TODO: nicht erreichbare Zustände und gleiche rausschmeißen *)
    (* checks if transition table is empty: *)
    if (dfa_transition_table = [])
       then failwith "One of the given dfa transition table's was empty"
@@ -733,18 +733,21 @@ let minimize dfa_transition_table = (*TODO: nicht erreichbare Zustände und glei
       )
 ;;
 
+let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
+   dfa_transition_table
+;;
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle2  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
 
-let tabelle1min  = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 selbst minimiert*)
-let tabelle2min  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 selbst minimiert*)
+let tabelle1min  = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 selbst minimiert *)
+let tabelle2min  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 selbst minimiert *)
 
 let tabelle3  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle4  = [(S,5,6,7);(N,6,5,8);(F,7,5,9);(N,8,9,9);(F,9,6,8);(F,10,10,9);(N,1,5,6)] ;; (* DEA 2 *)
 
-let candidates  = (minimize tabelle1, minimize tabelle2);; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
+let candidates  = (minimize (checkforInputErrors tabelle2), minimize (checkforInputErrors tabelle1));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
 
 let (tab1, tab2) = candidates;;
 let candidateList = tab1 @ tab2;;
