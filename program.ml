@@ -3,8 +3,8 @@
 
 type state_type = S | F | N | SF;; (* S = Startzustand; F = Finalzustand; N = Normaler Zustand *)
 
-type dfa_transition = state_type * int * int * int;; 
-type dfa_transition_table = dfa_transition list;; 
+type dfa_transition = state_type * int * int * int;;
+type dfa_transition_table = dfa_transition list;;
 type candidates = dfa_transition_table * dfa_transition_table;;
 type min_dfa_transition = state_type * int list * int list * int list;;
 type min_dfa_transition_table = min_dfa_transition list;;
@@ -34,11 +34,11 @@ let ( ^* ) str b =
 
 (** Gets position from a list
     Input:
-        list, 
+        list,
         element (position)
     Output:
-        element in position 
-        
+        element in position
+
 *)
 let rec getNElement ls element =
    if element < 0 then failwith "Out of bounds";
@@ -49,19 +49,19 @@ let rec getNElement ls element =
 
 (** Sets value for an element in list from its position
     Input:
-        list, 
+        list,
         element (position),
         value
     Output:
         list with new value in position element
-        
+
 *)
 let rec setNElement ls element value=
    if element < 0 then failwith "Out of bounds";
    match ls with
    | [] -> failwith "Out of bounds"
-   | hd::tl -> if element=0 
-      then value::tl 
+   | hd::tl -> if element=0
+      then value::tl
       else hd::(setNElement tl (element-1) value)
 ;;
 
@@ -73,7 +73,7 @@ let rec setNElement ls element value=
 *)
 let print_boolInt expression  =
    match expression with
-   | true -> print_int 1  
+   | true -> print_int 1
    | false -> print_int 0
 ;;
 
@@ -85,8 +85,8 @@ let print_boolInt expression  =
 *)
 let print_bool expression  =
    match expression with
-   | true -> print_string "true"  
-   | false -> print_string "false"  
+   | true -> print_string "true"
+   | false -> print_string "false"
 ;;
 
 (** Encodes Platzhalter a to a 2d List
@@ -120,7 +120,7 @@ let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % col
 *)
 let rec print_boolean_table (columnHeight, rowWidth) ls row column =
    let rec recursion i =
-      if i < (row * column) 
+      if i < (row * column)
          then( print_boolInt (getNElement ls i);
          print_string ("|" ^* (let (_, y) = decode2D (columnHeight, rowWidth) i in !(column-1 = y)));
          (if ((i+1) % column = 0)
@@ -135,7 +135,7 @@ let rec print_boolean_table (columnHeight, rowWidth) ls row column =
     Output:
         integerlist as string
 *)
-let rec print_int_list ls = 
+let rec print_int_list ls =
    match ls with
    | [] -> ()
    | [x] -> print_int x
@@ -148,7 +148,7 @@ let rec print_int_list ls =
     Output:
         integer list list as string
 *)
-let rec print_int_list_list ls = 
+let rec print_int_list_list ls =
    match ls with
    | [] -> ()
    | [x] -> print_string "["; print_int_list x; print_string "]\n"
@@ -172,7 +172,7 @@ let rec print_dfa_transition (state_type, name, partner0, partner1) =
    print_int partner1; print_string "\n"
 ;;
 
-(** Prints min_dfa_transition 
+(** Prints min_dfa_transition
     Input:
         quadtuple (state_type, name, partner0, partner1)
     Output:
@@ -195,11 +195,11 @@ let rec print_min_dfa_transition (state_type, name, partner0, partner1) =
     Output:
         min_dfa_transition as string table
 *)
-let rec print_dfa_transition_table dfa_transition_table = 
+let rec print_dfa_transition_table dfa_transition_table =
    match dfa_transition_table with
    | [] -> ()
    | hd::tl -> print_dfa_transition hd; print_dfa_transition_table tl
-;; 
+;;
 
 (** Prints min_dfa_transition_table
     Input:
@@ -207,11 +207,11 @@ let rec print_dfa_transition_table dfa_transition_table =
     Output:
         min_dfa_transition  as string table
 *)
-let rec print_min_dfa_transition_table min_dfa_transition_table = 
+let rec print_min_dfa_transition_table min_dfa_transition_table =
    match min_dfa_transition_table with
    | [] -> ()
    | hd::tl -> print_min_dfa_transition hd; print_min_dfa_transition_table tl
-;; 
+;;
 
 (** Prints candidates
     Input:
@@ -231,7 +231,7 @@ let print_candidates (a, b) =
 *)
 let rec lenght ls =
    match ls with
-   | [] -> 0  
+   | [] -> 0
    | [_] -> 1
    | hd::tl -> 1+(lenght tl)
 ;;
@@ -241,9 +241,9 @@ let rec lenght ls =
         element,
         list
     Output:
-        boolean 
+        boolean
 *)
-let rec contains element ls = 
+let rec contains element ls =
    match ls with
    | hd::tl -> if (hd = element) then true else (contains element tl)
    | [] -> false
@@ -258,11 +258,11 @@ let rec contains element ls =
 *)
 let rec containsAmount element ls =
    match ls with
-   | hd::tl -> if (hd = element) 
+   | hd::tl -> if (hd = element)
       then (containsAmount element tl) +1
       else (containsAmount element tl)
    | []   -> 0
-;;   
+;;
 
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Funktionen ~~~~~~~~~~~~~~~~~~~~~~~~ *)
@@ -282,7 +282,7 @@ let rec containsAmount element ls =
     Output:
         boolean
 *)
-let rec make ls count element = 
+let rec make ls count element =
    match ls with
     | [] -> if count = 0 then [] else element :: (make [] (count-1) element)
     | ls -> ls @ (make [] count element)
@@ -294,7 +294,7 @@ let rec make ls count element =
     Output:
         boolean
 *)
-let isStart zustand = 
+let isStart zustand =
    match zustand with s -> s = S || s = SF
 ;;
 
@@ -304,7 +304,7 @@ let isStart zustand =
     Output:
         boolean
 *)
-let isFinal zustand = 
+let isFinal zustand =
    match zustand with s -> s = F || s = SF
 ;;
 
@@ -316,7 +316,7 @@ let isFinal zustand =
         gets transitions of knot
 *)
 let getTransitionByPoint candidateList knot =
-   let rec recursion ls = 
+   let rec recursion ls =
       match ls with
       | [] -> failwith "Unknown knot"
       | hd::tl -> (
@@ -334,7 +334,7 @@ let getTransitionByPoint candidateList knot =
         state of a knot
 *)
 let getStateByPoint candidateList knot =
-   let rec recursion ls = 
+   let rec recursion ls =
       match ls with
       | [] -> failwith "Unknown knot"
       | hd::tl -> (
@@ -351,8 +351,8 @@ let getStateByPoint candidateList knot =
     Output:
         Position of knot
 *)
-let getPositioninTable candidateList knot = 
-   let rec recursion ls i = 
+let getPositioninTable candidateList knot =
+   let rec recursion ls i =
       match ls with
       | [] -> failwith ("Unknown knot: " ^ (string_of_int knot))
       | hd::tl -> (
@@ -361,7 +361,7 @@ let getPositioninTable candidateList knot =
       );
    in recursion candidateList 0
 ;;
-   
+
 
 (** Function for table-filling-algorithm. Determines if the table don't have an aquivalence class
     Input:
@@ -375,14 +375,14 @@ let strike_out_element candidateList (columnHeight, rowWidth) ls element =
    let (x,y) = decode2D (columnHeight, rowWidth) element in
    let (_, _, a0, a1) = (getNElement candidateList y) in
    let (_, _, b0, b1) = (getNElement candidateList x) in
-      (getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a0) (getPositioninTable candidateList b0))) 
+      (getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a0) (getPositioninTable candidateList b0)))
    ||   (getNElement ls (encode2D (columnHeight, rowWidth) (getPositioninTable candidateList a1) (getPositioninTable candidateList b1)))
 ;;
 
 (** Checks if a states of boolean-table are different
     Input:
         candidateList (columnHeight, rowWidth),
-        where 
+        where
     Output:
         boolean
 *)
@@ -395,17 +395,17 @@ let areDifferentState candidateList (columnHeight, rowWidth) where =
 
 (** Marks state in table of booleans when they are final and start
     Input:
-        candidateList (columnHeight, rowWidth) 
+        candidateList (columnHeight, rowWidth)
         endvalue.
         ls
-      
+
     Output:
     table of booleans
-        
+
 *)
 let strike_finals candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion ls i =
-      if i <= endvalue 
+      if i <= endvalue
          then (
             if (areDifferentState candidateList (columnHeight, rowWidth) i)
                then recursion (setNElement ls i true) (i+1)
@@ -417,22 +417,22 @@ let strike_finals candidateList (columnHeight, rowWidth) endvalue ls =
 
 (** Computes aequivalence classes
     Input:
-        candidateList (columnHeight, rowWidth) 
+        candidateList (columnHeight, rowWidth)
         endvalue.
         ls
-      
+
     Output:
     aequivalenz classes as a table of string
-        
+
 *)
 let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion i =
-      if i <= endvalue 
+      if i <= endvalue
          then(
             let (x,y) = decode2D (columnHeight, rowWidth) i in
             if (not (x=y))
                then (
-                  if not (getNElement ls i) 
+                  if not (getNElement ls i)
                   (* then (x,y)::(recursion (i+1)) *)
                      then (
                         let (_, a, _, _) = (getNElement candidateList x) in
@@ -450,10 +450,10 @@ let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
 (** Prints tuple as string
     Input:
         tuple
-      
+
     Output:
         String of tuple
-        
+
 *)
 let print_int_2_tuple a =
    let (x,y) = a in
@@ -463,10 +463,10 @@ let print_int_2_tuple a =
 (** Prints aquivalence classes
     Input:
         aquivalence-class
-      
+
     Output:
         String of table
-        
+
 *)
 let rec print_aquivalenzklasse a =
    match a with
@@ -477,42 +477,68 @@ let rec print_aquivalenzklasse a =
 (** Prints aquivalence classes
     Input:
         aquivalence-class
-      
+
     Output:
         String of table
-        
+
 *)
 let rec get_aequivalenztuple element ls =
    match ls with
    | [] -> []
-   | hd::tl -> 
+   | hd::tl ->
       let (x,y) = hd in
-      if x = element 
+      if x = element
          then (
             y::(get_aequivalenztuple element tl)
          )
          else (get_aequivalenztuple element tl)
 ;;
 
+(** Function to combine tuple of aquivalence-classes to aquivalence-class
+    Input:
+        ls,
+        aquivalence-classes
+
+    Output:
+        table of booleans
+
+*)
 let rec streiche_aequi ls aequi =
    match ls with
    | [] -> []
-   | hd::tl -> 
+   | hd::tl ->
       let (x, y) = hd in
       if (contains x aequi)
          then streiche_aequi tl aequi
          else hd::streiche_aequi tl aequi
 ;;
 
+(** Builds aquivalence-classes
+    Input:
+        ls
+
+    Output:
+        aquivalence-classes
+
+*)
 let rec aequivalenz_klasse_bilden ls =
    match ls with
    |[] -> []
-   | hd::tl -> 
-      let (a, _) = hd in 
-      let aequi = a::(get_aequivalenztuple a ls) in (* [1;2;3]*) (*0::[3;4]*) 
+   | hd::tl ->
+      let (a, _) = hd in
+      let aequi = a::(get_aequivalenztuple a ls) in (* [1;2;3]*) (*0::[3;4]*)
       aequi :: (aequivalenz_klasse_bilden (streiche_aequi ls aequi))
 ;;
 
+(** Checks if states are same
+    Input:
+        candidateList (columnHeight, rowWidth),
+        where
+
+    Output:
+        boolean
+
+*)
 let areStartSame candidateList (columnHeight, rowWidth) where =
    let (x, y) = (decode2D (columnHeight, rowWidth) where) in
    let (sx, _, _, _) = getNElement candidateList x in
@@ -520,13 +546,28 @@ let areStartSame candidateList (columnHeight, rowWidth) where =
    (xor (isFinal sx) (isFinal sy))
 ;;
 
+(** Prints integer list as string
+    Input:
+        ls
+
+    Output:
+        string of  int list
+
+*)
 let rec string_of_int_list ls =
-   match ls with 
+   match ls with
    | [] -> ""
    | [x] -> (string_of_int x)
    | hd::tl -> ((string_of_int hd) ^ ", " ^ (string_of_int_list tl))
 ;;
+(** Prints integer list list as string
+    Input:
+        ls
 
+    Output:
+        integer list list as string
+
+*)
 let rec string_of_int_list_list ls =
    match ls with
    | [] -> ""
@@ -534,33 +575,69 @@ let rec string_of_int_list_list ls =
    | hd::tl -> "[" ^ ((string_of_int_list hd) ^ ", " ^ (string_of_int_list_list tl)) ^ "]"
 ;;
 
-let rec getListbyElement element ls = 
+(** Gets List by Element
+    Input:
+        element,
+        ls
+
+    Output:
+        list in position (element)
+
+*)
+let rec getListbyElement element ls =
    match ls with
    | [] ->  failwith ("Element not in List " ^ (string_of_int element) ^ "[" ^ (string_of_int_list_list ls) ^ "]")
-   | hd::tl -> 
-      if (contains element hd) 
-         then hd 
+   | hd::tl ->
+      if (contains element hd)
+         then hd
          else getListbyElement element tl
 ;;
 
+(** Determine if a state is a start-type (SF || S)
+    Input:
+        canditateList
+        ls
+
+    Output:
+        boolean
+
+*)
 let rec determineStart candidateList ls =
    match ls with
    | [] -> false
    | hd::tl -> (isStart (getStateByPoint candidateList hd)) || (determineStart candidateList tl)
 ;;
 
+(** Determine if a state is a final-type (SF || F)
+    Input:
+        canditateList
+        ls
+
+    Output:
+        boolean
+
+*)
 let rec determineFinal candidateList ls =
    match ls with
    | [] -> false
    | hd::tl -> (isFinal (getStateByPoint candidateList hd)) || (determineFinal candidateList tl)
 ;;
 
+(** Determine state-type of canditate list and list
+    Input:
+        canditateList
+        ls
+
+    Output:
+        state-type (SF || S || F || N)
+
+*)
 let determineState candidateList ls =
-   let start = determineStart candidateList ls in 
-   let final = determineFinal candidateList ls in 
-   
-   if final 
-      then 
+   let start = determineStart candidateList ls in
+   let final = determineFinal candidateList ls in
+
+   if final
+      then
          if start
             then SF
             else F
@@ -571,8 +648,8 @@ let determineState candidateList ls =
 ;;
 
 let rec dostuff candidateList ls =
-   let rec recursion lss = 
-      match lss with 
+   let rec recursion lss =
+      match lss with
       | [] -> []
       | hd::tl -> (
          match hd with
@@ -589,25 +666,33 @@ let rec dostuff candidateList ls =
    in recursion ls
 ;;
 
+(** Gets startList
+    Input:
+        canditateList
+
+    Output:
+
+
+*)
 let rec getStartList candidateList =
    match candidateList with
    | [] -> []
-   | hd::tl -> 
+   | hd::tl ->
       let (s, k, _, _) = hd in
-      if isStart s 
+      if isStart s
          then k::(getStartList tl)
          else (getStartList tl)
 ;;
 
 let rec containsMultiple ls =
    match ls with
-   | [] -> false 
+   | [] -> false
    | hd::tl -> (contains hd tl) || (containsMultiple tl)
 ;;
 
 let strike_out candidateList (columnHeight, rowWidth) endvalue ls =
    let rec recursion ls i =
-      if i <= endvalue 
+      if i <= endvalue
          then (
             if (not (getNElement ls i))
                then recursion (setNElement ls i (strike_out_element candidateList (columnHeight, rowWidth) ls i)) (i+1)
@@ -617,7 +702,7 @@ let strike_out candidateList (columnHeight, rowWidth) endvalue ls =
    in recursion ls 0
 ;;
 
-let rec getListOfPointersNames ls = 
+let rec getListOfPointersNames ls =
    match ls with
    | [] -> []
    | hd::tl -> (
@@ -628,7 +713,7 @@ let rec getListOfPointersNames ls =
 
 let minimize dfa_transition_table = (*TODO: nicht erreichbare Zustände und gleiche rausschmeißen *)
    (* checks if transition table is empty: *)
-   if (dfa_transition_table = []) 
+   if (dfa_transition_table = [])
       then failwith "One of the given dfa transition table's was empty"
       else (
          let zustaende=getListOfPointersNames dfa_transition_table in
@@ -644,12 +729,12 @@ let minimize dfa_transition_table = (*TODO: nicht erreichbare Zustände und glei
                      (contains a0 zustaende && contains a1 zustaende) && (doTransitionPointsExist tl)
                   )
                   (* checks if there is a invalid transition (meaning transition to a point that does not exist) *)
-               ) in if not (doTransitionPointsExist dfa_transition_table) 
-                  then failwith "Pointed to invalid Point" 
+               ) in if not (doTransitionPointsExist dfa_transition_table)
+                  then failwith "Pointed to invalid Point"
                   (* checks if there is exactly one starting point: *)
-                  else (if (lenght(getStartList dfa_transition_table) != 1) 
+                  else (if (lenght(getStartList dfa_transition_table) != 1)
                      then failwith "Wrong Amount of Start Points"
-                     else 
+                     else
                         dfa_transition_table
                   )
             )
@@ -684,7 +769,7 @@ print_string "\n";;
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
 (* let tabelle = (filling_table, rowWidth, columnHeight);; *)
 
-print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;; 
+print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
 
 let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
@@ -694,7 +779,7 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 let filling_table =
    let rec recursion ft = (
       let new_filling_table = (strike_out candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) ft) in
-      
+
       if (ft = new_filling_table)
          then (ft)
          else (print_boolean_table (columnHeight, rowWidth) new_filling_table rowWidth columnHeight; recursion new_filling_table)
@@ -716,8 +801,8 @@ print_min_dfa_transition_table (dostuff candidateList aequivalenzklasse);;
 (S/SF, k, _, _)
 
 
-ROW = getPositioninTable LISTe1 Knoten 
-Collumn = getPositioninTable LISTe2 Knoten 
+ROW = getPositioninTable LISTe1 Knoten
+Collumn = getPositioninTable LISTe2 Knoten
 if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
 
 
