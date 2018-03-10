@@ -266,14 +266,6 @@ let rec containsAmount element ls =
 
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Funktionen ~~~~~~~~~~~~~~~~~~~~~~~~ *)
-(** Determine how often a element is in a list
-    Input:
-        list,
-        count,
-        element
-    Output:
-        list of booleans
-*)
 (** Makes a boolean false table for table-filling algorithm
     Input:
         ls,
