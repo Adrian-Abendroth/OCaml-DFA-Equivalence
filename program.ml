@@ -530,21 +530,6 @@ let rec aequivalenz_klasse_bilden ls =
       aequi :: (aequivalenz_klasse_bilden (streiche_aequi ls aequi))
 ;;
 
-(** Checks if states are same
-    Input:
-        candidateList (columnHeight, rowWidth),
-        where
-
-    Output:
-        boolean
-
-*)
-let areStartSame candidateList (columnHeight, rowWidth) where =
-   let (x, y) = (decode2D (columnHeight, rowWidth) where) in
-   let (sx, _, _, _) = getNElement candidateList x in
-   let (sy, _, _, _) = getNElement candidateList y in
-   (xor (isFinal sx) (isFinal sy))
-;;
 
 (** Prints integer list as string
     Input:
@@ -684,6 +669,14 @@ let rec getStartList candidateList =
          else (getStartList tl)
 ;;
 
+let rec getPointList candidateList =
+   match candidateList with
+   | [] -> []
+   | hd::tl ->
+      let (_, k, _, _) = hd in
+      k::(getPointList tl)
+;;
+
 let rec containsMultiple ls =
    match ls with
    | [] -> false
@@ -742,7 +735,22 @@ let checkforInputErrors dfa_transition_table = (*TODO: nicht erreichbare Zustän
 ;;
 
 let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
-   dfa_transition_table
+   let rec recursion s = 
+   
+      let r0 = recursion s0 in
+      let r1 = recursion s1 in
+      let r = r0 @ r1 in
+      
+      if (contains s0 r)
+         then
+            if (contains s1 r)
+               then [s]
+               else [s] @ r1
+         else
+            if (contains s1 r)
+               then [s] @ r0
+               else [s] @ r0 @ r1 
+   in recursion dfa_transition_table
 ;;
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
