@@ -13,6 +13,7 @@ After you installed OCaml on your machine, you need to compile the program in yo
 ocamlc -o NameOfCompilatedFile program.ml
 ```
 <br />
+
 Now you can execute the compiled file in your terminal with:
 ```
 ./NameOfCompilatedFile
