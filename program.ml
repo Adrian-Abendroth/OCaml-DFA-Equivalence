@@ -89,23 +89,24 @@ let print_bool expression  =
    | false -> print_string "false"
 ;;
 
-(** Encodes Platzhalter a to a 2d List
+(** Encodes a tuple to a Integer Value
     Input:
-        tuple of (columnHeight, rowWidth),
+        columnHeight,
+        rowWidth
         row,
         column
     Output:
-        List
+        Integer
 *)
 let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + row);;
 
-(** Decodes a 2d List to a Platzhalter
+(** Decodes Integer Value to a tuple
     Input:
-        tuple of (columnHeight, rowWidth),
-        row,
-        column
+        columnHeight,
+        rowWidth,
+        value
     Output:
-        string
+        Tuple for row and coloumn
 *)
 let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
 
