@@ -89,23 +89,24 @@ let print_bool expression  =
    | false -> print_string "false"
 ;;
 
-(** Encodes Platzhalter a to a 2d List
+(** Encodes a tuple to a Integer Value
     Input:
-        tuple of (columnHeight, rowWidth),
+        columnHeight,
+        rowWidth
         row,
         column
     Output:
-        List
+        Integer
 *)
 let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + row);;
 
-(** Decodes a 2d List to a Platzhalter
+(** Decodes Integer Value to a tuple
     Input:
-        tuple of (columnHeight, rowWidth),
-        row,
-        column
+        columnHeight,
+        rowWidth,
+        value
     Output:
-        string
+        Tuple for row and coloumn
 *)
 let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
 
@@ -266,14 +267,6 @@ let rec containsAmount element ls =
 
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Funktionen ~~~~~~~~~~~~~~~~~~~~~~~~ *)
-(** Determine how often a element is in a list
-    Input:
-        list,
-        count,
-        element
-    Output:
-        list of booleans
-*)
 (** Makes a boolean false table for table-filling algorithm
     Input:
         ls,
@@ -777,16 +770,38 @@ let rowWidth, columnHeight = (lenght tab1)+(lenght tab2), (lenght tab1)+(lenght 
 print_candidates candidates;;
 print_string "\n";;
 
+(* Step 1: Creates table with both DFA's and marks complete table as false with function make
+    Input:
+        (* TO-DO: write Inputs in here *)
+
+    Output:
+        table of booleans with false
+*)
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
 (* let tabelle = (filling_table, rowWidth, columnHeight);; *)
 
+(* Prints table of boolean false of both DFA's for step 1 *)
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
+(* Step 2: Mark state, which are not start-states (N, F)
+    Input:
+        (* TO-DO: write Inputs in here *)
 
+    Output:
+        table of booleans
+*)
 let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
+
+(* Print table of booleans for step 2 *)
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
+(* Step 3: Mark state, which are different
+    Input:
+        (* TO-DO: write Inputs in here *)
 
+    Output:
+        table of booleans
+*)
 let filling_table =
    let rec recursion ft = (
       let new_filling_table = (strike_out candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) ft) in
@@ -798,14 +813,36 @@ let filling_table =
    in recursion filling_table
 ;;
 
-let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table);;
-print_aquivalenzklasse aequivalenz_tuple;;
+(* Step 4: Create Aquivalence-Classes *)
+(* Step 4.1: Create Aquivalence-Tuples
+    Input:
+        (* TO-DO: write Inputs in here *)
 
+    Output:
+        list of aquivalence-tuples
+*)
+let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table);;
+(* Prints aquivalence-tuples *)
+print_aquivalenzklasse aequivalenz_tuple;;
 print_string "\n\n";;
+
+(* Step 4.2: Create Aquivalence-Classes
+    Input:
+        (* TO-DO: write Inputs in here *)
+
+    Output:
+        list of aquivalence-tuples
+*)
 let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple);;
 (* print_int_list_list aequivalenzklasse;; *)
 
+(* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
+    Input:
+        (* TO-DO: write Inputs in here *)
 
+    Output:
+        DEA
+*)
 print_min_dfa_transition_table (dostuff candidateList aequivalenzklasse);;
 (* print_min_dfa_transition_table (dostuff candidateList [[1; 5; 6];[3; 9];[2; 7; 8]]);; *)
 (*
