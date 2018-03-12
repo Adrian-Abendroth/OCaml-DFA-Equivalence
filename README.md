@@ -3,7 +3,7 @@
 This is an OCaml program to check whether two DFA's are equivalent and minimize them. It uses the Table-Filling Algorithm.
 
 To see how the program works, see: <br />
-hhttps://github.com/Adrian-Abendroth/OCaml-DFA-Equivalence/blob/master/documentation/1.method.md
+https://github.com/Adrian-Abendroth/OCaml-DFA-Equivalence/blob/master/documentation/1.method.md
 
 ### Set-Up
 To start the program, you need to instal OCaml.
