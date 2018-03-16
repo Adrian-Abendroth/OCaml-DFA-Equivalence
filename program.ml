@@ -77,6 +77,10 @@ let print_boolInt expression  =
    | false -> print_int 0
 ;;
 
+print_equivalence_result equivalence_result =
+   ######################
+;;
+
 (** Prints boolean as string
     Input:
         expression
@@ -317,6 +321,27 @@ let getTransitionByPoint candidateList knot =
          if (knot = k) then (t0, t1) else (recursion tl)
       );
    in recursion candidateList
+;;
+
+let rec getPointByTransitions candidateList transitiontuple =
+      match candidateList with
+      | [] -> (false, 0) (* returnen 0, als 'false' Wert, Programm fängt das false ab und ignoriert die 0 dann*)
+      | hd::tl -> 
+         let (_, t, t0, t1) = hd in
+         if transitiontuple = (t0,t1)
+            then (true, t)
+            else getPointByTransitions tl transitiontuple
+;;
+
+let getTransitionByListOfPoints knotls =
+   let rec recursion ls =
+      match ls with
+      | [] -> []
+      | hd::tl -> (
+         let (_, _, t0, t1) = hd in
+         (t0, t1) :: (recursion tl)
+      );
+   in recursion knotls
 ;;
 
 (** Get state of a knot
@@ -625,23 +650,20 @@ let determineState candidateList ls =
             else N
 ;;
 
-let rec dostuff candidateList ls =
-   let rec recursion lss =
-      match lss with
+let create_min_dfa_transition_table candidateList aequiLS =
+   let rec recursion ls =
+      match ls with
       | [] -> []
       | hd::tl -> (
          match hd with
-         | [] -> failwith "Empty List inside of Aequivalentliste"
+         | [] -> failwith "Aequivalentliste is empty"
          | hdhd::_ -> (
             let (hd0, hd1) = getTransitionByPoint candidateList hdhd in
-            (* print_min_dfa_transition (((determineState candidateList hd), hd, (getListbyElement hd0 ls), (getListbyElement hd1 ls))); *)
-            (* print_int_list (getListbyElement hd0 ls); print_string " | "; print_int_list (getListbyElement hd1 ls); print_string " | "; *)
-            (* print_int_list_list ls; *)
-            ((determineState candidateList hd), hd, (getListbyElement hd0 ls), (getListbyElement hd0 ls))::(recursion tl)
+            ((determineState candidateList hd), hd, (getListbyElement hd0 aequiLS), (getListbyElement hd1 aequiLS))::(recursion tl)
             )
             (* (F,[3;9],[3;9],[2;7;8]) *)
          )
-   in recursion ls
+   in recursion aequiLS
 ;;
 
 (** Gets startList
@@ -700,12 +722,12 @@ let rec getListOfPointersNames ls =
 let checkforInputErrors dfa_transition_table = (*TODO: nicht erreichbare Zustände und gleiche rausschmeißen *)
    (* checks if transition table is empty: *)
    if (dfa_transition_table = [])
-      then failwith "One of the given dfa transition table's was empty"
+      then failwith "One of the given dfa transition tables was empty"
       else (
          let zustaende=getListOfPointersNames dfa_transition_table in
          (* checks if there are multiple points with the same name: *)
          if (containsMultiple zustaende)
-            then failwith "Pointer name assignend multiple times"
+            then failwith "In one of the given dfa transition tables pointer names were assignend multiple times"
             else (
                let rec doTransitionPointsExist ls = (
                   match ls with
@@ -727,7 +749,31 @@ let checkforInputErrors dfa_transition_table = (*TODO: nicht erreichbare Zustän
       )
 ;;
 
+let rec renameTransitions searchvalue replacevalue ls =
+   match ls with 
+   | [] -> []
+   | hd::tl -> 
+      let (y, z, a, b) = hd in
+      (y, z, (if a=searchvalue then replacevalue else a), (if b=searchvalue then replacevalue else b))::(renameTransitions searchvalue replacevalue tl)
+;;
+
 let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
+   let rec recursion ls recls=
+      match ls with
+      | [] -> recls
+      | hd::tl ->
+         let (_, a, a0, a1) = hd in
+         let (boolvalue, point) = getPointByTransitions recls (a0, a1) in
+         if boolvalue
+            then (*let recls = renameTransitions a point recls in
+               let tl = renameTransitions a point tl in
+               recursion ls recls *)
+               recursion (renameTransitions a point tl) (renameTransitions a point recls) 
+            else recursion tl (recls @ [hd]) 
+         
+   in recursion dfa_transition_table []
+;;
+(*let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
    let rec recursion s = 
    
       let r0 = recursion s0 in
@@ -744,24 +790,25 @@ let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
                then [s] @ r0
                else [s] @ r0 @ r1 
    in recursion dfa_transition_table
-;;
+;;*)
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle2  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
 
-let tabelle1min  = [(S,1,1,2);(N,2,3,3);(F,3,3,2)] ;; (* DEA 1 selbst minimiert *)
-let tabelle2min  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8)] ;; (* DEA 2 selbst minimiert *)
-
 let tabelle3  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
-let tabelle4  = [(S,5,6,7);(N,6,5,8);(F,7,5,9);(N,8,9,9);(F,9,6,8);(F,10,10,9);(N,1,5,6)] ;; (* DEA 2 *)
+let tabelle4  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
+let tabelle5  = [(S,5,6,7);(N,6,5,8);(F,7,5,9);(N,8,9,9);(F,9,6,8);(F,10,10,9);(N,1,5,6)] ;; (* DEA 2 *)
 
-let candidates  = (minimize (checkforInputErrors tabelle2), minimize (checkforInputErrors tabelle1));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
+let candidates  = (minimize (checkforInputErrors tabelle3), minimize (checkforInputErrors tabelle4));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
+
+
+
 
 let (tab1, tab2) = candidates;;
 let candidateList = tab1 @ tab2;;
 
-if (containsMultiple (getListOfPointersNames candidateList)) then failwith "Pointer name assignend multiple times";; (*checks if there are points in tab1 that have the same name as in tab2*)
+if (containsMultiple (getListOfPointersNames candidateList)) then failwith "Pointer name assignend multiple times across both tables";; (*checks if there are points in tab1 that have the same name as in tab2*)
 
 let rowWidth, columnHeight = (lenght tab1)+(lenght tab2), (lenght tab1)+(lenght tab2);;
 
@@ -797,7 +844,7 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 
 (* Step 3: Mark state, which are different
     Input:
-        (* TO-DO: write Inputs in here *)
+        (* Unit *)
 
     Output:
         table of booleans
@@ -812,6 +859,23 @@ let filling_table =
    );
    in recursion filling_table
 ;;
+
+let [startOfTab1] = getStartList tab1 in (*TODO: Warning*)
+let [startOfTab2] = getStartList tab2 in (*TODO: Warning*)
+let ROW = getPositioninTable candidateList startOfTab1 in
+let COLUMN = getPositioninTable candidateList startOfTab2 in
+if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
+   then (
+(*
+(S/SF, k, _, _)
+
+
+ROW = getPositioninTable LISTe1 Knoten
+Collumn = getPositioninTable LISTe2 Knoten
+if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
+
+
+*)
 
 (* Step 4: Create Aquivalence-Classes *)
 (* Step 4.1: Create Aquivalence-Tuples
@@ -834,7 +898,6 @@ print_string "\n\n";;
         list of aquivalence-tuples
 *)
 let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple);;
-(* print_int_list_list aequivalenzklasse;; *)
 
 (* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
     Input:
@@ -843,15 +906,12 @@ let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple);;
     Output:
         DEA
 *)
-print_min_dfa_transition_table (dostuff candidateList aequivalenzklasse);;
-(* print_min_dfa_transition_table (dostuff candidateList [[1; 5; 6];[3; 9];[2; 7; 8]]);; *)
-(*
-(S/SF, k, _, _)
+print_min_dfa_transition_table (create_min_dfa_transition_table candidateList aequivalenzklasse);;
+(* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList 
+[[1; 5; 6];[3; 9];[2; 7]]);; *)
+
+)
+else
+print_equivalence_result false [];;
 
 
-ROW = getPositioninTable LISTe1 Knoten
-Collumn = getPositioninTable LISTe2 Knoten
-if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
-
-
-*)
