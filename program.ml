@@ -873,8 +873,11 @@ let filling_table =
    in recursion filling_table
 ;;
 
-let [startOfTab1] = getStartList tab1 in (*TODO: Warning*)
-let [startOfTab2] = getStartList tab2 in (*TODO: Warning*)
+match getStartList tab1 with
+   | [startOfTab1] -> (
+      match getStartList tab2 with
+      | [startOfTab2] -> 
+(
 let row = getPositioninTable candidateList startOfTab1 in
 let column = getPositioninTable candidateList startOfTab2 in
 if getNElement filling_table (encode2D (columnHeight, rowWidth) row column) (* checkt, ob Startzustände unterscheidbar*)
@@ -926,6 +929,11 @@ print_min_dfa_transition_table (create_min_dfa_transition_table candidateList ae
 )
 else
 let result = (false, []) in 
-print_equivalence_result result;;
+print_equivalence_result result;
 
 
+     
+)
+      | _ -> failwith "This will never trigger - just so there is no warning"
+   )
+   | _ -> failwith "This will never trigger - just so there is no warning"
