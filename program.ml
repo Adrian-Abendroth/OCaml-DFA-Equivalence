@@ -925,7 +925,7 @@ print_min_dfa_transition_table (create_min_dfa_transition_table candidateList ae
 
 )
 else
-let result = (false, [])
-print_equivalence_result false [];;
+let result = (false, []) in 
+print_equivalence_result result;;
 
 
