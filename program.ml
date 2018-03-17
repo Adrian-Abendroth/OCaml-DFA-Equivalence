@@ -77,9 +77,6 @@ let print_boolInt expression  =
    | false -> print_int 0
 ;;
 
-print_equivalence_result equivalence_result =
-   ######################
-;;
 
 (** Prints boolean as string
     Input:
@@ -92,6 +89,7 @@ let print_bool expression  =
    | true -> print_string "true"
    | false -> print_string "false"
 ;;
+
 
 (** Encodes a tuple to a Integer Value
     Input:
@@ -110,7 +108,7 @@ let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + ro
         rowWidth,
         value
     Output:
-        Tuple for row and coloumn
+        Tuple for row and column
 *)
 let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
 
@@ -206,6 +204,7 @@ let rec print_dfa_transition_table dfa_transition_table =
    | hd::tl -> print_dfa_transition hd; print_dfa_transition_table tl
 ;;
 
+
 (** Prints min_dfa_transition_table
     Input:
         min_dfa_transition_table
@@ -216,6 +215,11 @@ let rec print_min_dfa_transition_table min_dfa_transition_table =
    match min_dfa_transition_table with
    | [] -> ()
    | hd::tl -> print_min_dfa_transition hd; print_min_dfa_transition_table tl
+;;
+let print_equivalence_result equivalence_result =
+   let (booleanvalue, min_dfa_transition_table) = equivalence_result in
+   print_bool booleanvalue; print_string "\n\n";
+   print_min_dfa_transition_table min_dfa_transition_table
 ;;
 
 (** Prints candidates
@@ -448,10 +452,9 @@ let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
       if i <= endvalue
          then(
             let (x,y) = decode2D (columnHeight, rowWidth) i in
-            if (not (x=y))
+            if (not (x=y)) (* Herausfilter der Diagonalen als Äquivalenztupel*)
                then (
-                  if not (getNElement ls i)
-                  (* then (x,y)::(recursion (i+1)) *)
+                  if not (getNElement ls i) (* falls noch nicht markiert*)
                      then (
                         let (_, a, _, _) = (getNElement candidateList x) in
                         let (_, b, _, _) = (getNElement candidateList y) in
@@ -519,6 +522,11 @@ let rec get_aequivalenztuple element ls =
 
     Output:
         table of booleans
+        
+   Example:
+      [(0,1);(0,2);(1,2);(2,3); (4,5);(4,6);(5,6)] [0;1;2;3]
+      ->
+      [(2,3);(4,5);(4,6);(5,6)]
 
 *)
 let rec streiche_aequi ls aequi =
@@ -532,11 +540,16 @@ let rec streiche_aequi ls aequi =
 ;;
 
 (** Builds aquivalence-classes
-    Input:
-        ls
+   Input:
+      ls
 
-    Output:
-        aquivalence-classes
+   Output:
+      aquivalence-classes
+        
+   Example:
+      [(0,1);(0,2);(1,2);(2,3); (4,5);(4,6);(5,6)]
+      ->
+      [[0; 1; 2; 3]; [4; 5; 6]]
 
 *)
 let rec aequivalenz_klasse_bilden ls =
@@ -763,8 +776,8 @@ let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
       | [] -> recls
       | hd::tl ->
          let (_, a, a0, a1) = hd in
-         let (boolvalue, point) = getPointByTransitions recls (a0, a1) in
-         if boolvalue
+         let (booleanvalue, point) = getPointByTransitions recls (a0, a1) in
+         if booleanvalue
             then (*let recls = renameTransitions a point recls in
                let tl = renameTransitions a point tl in
                recursion ls recls *)
@@ -800,7 +813,7 @@ let tabelle3  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle4  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle5  = [(S,5,6,7);(N,6,5,8);(F,7,5,9);(N,8,9,9);(F,9,6,8);(F,10,10,9);(N,1,5,6)] ;; (* DEA 2 *)
 
-let candidates  = (minimize (checkforInputErrors tabelle3), minimize (checkforInputErrors tabelle4));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
+let candidates  = (minimize (checkforInputErrors tabelle1), minimize (checkforInputErrors tabelle2));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
 
 
 
@@ -819,7 +832,7 @@ print_string "\n";;
 
 (* Step 1: Creates table with both DFA's and marks complete table as false with function make
     Input:
-        (* TO-DO: write Inputs in here *)
+        (* TODO: write Inputs in here *)
 
     Output:
         table of booleans with false
@@ -832,7 +845,7 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 
 (* Step 2: Mark state, which are not start-states (N, F)
     Input:
-        (* TO-DO: write Inputs in here *)
+        (* TODO: write Inputs in here *)
 
     Output:
         table of booleans
@@ -862,9 +875,9 @@ let filling_table =
 
 let [startOfTab1] = getStartList tab1 in (*TODO: Warning*)
 let [startOfTab2] = getStartList tab2 in (*TODO: Warning*)
-let ROW = getPositioninTable candidateList startOfTab1 in
-let COLUMN = getPositioninTable candidateList startOfTab2 in
-if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
+let row = getPositioninTable candidateList startOfTab1 in
+let column = getPositioninTable candidateList startOfTab2 in
+if getNElement filling_table (encode2D (columnHeight, rowWidth) row column) (* checkt, ob Startzustände unterscheidbar*)
    then (
 (*
 (S/SF, k, _, _)
@@ -880,38 +893,39 @@ if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
 (* Step 4: Create Aquivalence-Classes *)
 (* Step 4.1: Create Aquivalence-Tuples
     Input:
-        (* TO-DO: write Inputs in here *)
+        (* TODO: write Inputs in here *)
 
     Output:
         list of aquivalence-tuples
 *)
-let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table);;
+let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table) in
 (* Prints aquivalence-tuples *)
-print_aquivalenzklasse aequivalenz_tuple;;
-print_string "\n\n";;
+print_aquivalenzklasse aequivalenz_tuple;
+print_string "\n\n";
 
 (* Step 4.2: Create Aquivalence-Classes
     Input:
-        (* TO-DO: write Inputs in here *)
+        (* TODO: write Inputs in here *)
 
     Output:
         list of aquivalence-tuples
 *)
-let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple);;
+let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in 
 
 (* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
     Input:
-        (* TO-DO: write Inputs in here *)
+        (* TODO: write Inputs in here *)
 
     Output:
         DEA
 *)
-print_min_dfa_transition_table (create_min_dfa_transition_table candidateList aequivalenzklasse);;
+print_min_dfa_transition_table (create_min_dfa_transition_table candidateList aequivalenzklasse);
 (* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList 
 [[1; 5; 6];[3; 9];[2; 7]]);; *)
 
 )
 else
+let result = (false, [])
 print_equivalence_result false [];;
 
 
