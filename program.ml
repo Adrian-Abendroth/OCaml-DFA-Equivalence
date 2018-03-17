@@ -65,30 +65,10 @@ let rec setNElement ls element value=
       else hd::(setNElement tl (element-1) value)
 ;;
 
-(** Prints boolean as int 0 or 1
-    Input:
-        expression
-    Output:
-        string
-*)
-let print_boolInt expression  =
-   match expression with
-   | true -> print_int 1
-   | false -> print_int 0
-;;
 
 
-(** Prints boolean as string
-    Input:
-        expression
-    Output:
-        string
-*)
-let print_bool expression  =
-   match expression with
-   | true -> print_string "true"
-   | false -> print_string "false"
-;;
+
+
 
 
 (** Encodes a tuple to a Integer Value
@@ -111,6 +91,77 @@ let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + ro
         Tuple for row and column
 *)
 let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
+
+
+
+
+
+(** Determine length of list
+    Input:
+        list
+    Output:
+        length of list
+*)
+let rec lenght ls =
+   match ls with
+   | [] -> 0
+   | [_] -> 1
+   | hd::tl -> 1+(lenght tl)
+;;
+
+(** Determine if list contains element
+    Input:
+        element,
+        list
+    Output:
+        boolean
+*)
+let rec contains element ls =
+   match ls with
+   | hd::tl -> if (hd = element) then true else (contains element tl)
+   | [] -> false
+;;
+
+(** Determine how often a element is in a list
+    Input:
+        element,
+        list
+    Output:
+        integer
+*)
+let rec containsAmount element ls =
+   match ls with
+   | hd::tl -> if (hd = element)
+      then (containsAmount element tl) +1
+      else (containsAmount element tl)
+   | []   -> 0
+;;
+
+(* ~~~~~~~~~~~~~~~~~~ Print Funktionen ~~~~~~~~~~~~~~~~~~~ *)
+
+(** Prints boolean as int 0 or 1
+    Input:
+        expression
+    Output:
+        string
+*)
+let print_boolInt expression  =
+   match expression with
+   | true -> print_int 1
+   | false -> print_int 0
+;;
+
+(** Prints boolean as string
+    Input:
+        expression
+    Output:
+        string
+*)
+let print_bool expression  =
+   match expression with
+   | true -> print_string "true"
+   | false -> print_string "false"
+;;
 
 (** Prints table with boolean values to see which states are aquivalent
     Input:
@@ -216,6 +267,7 @@ let rec print_min_dfa_transition_table min_dfa_transition_table =
    | [] -> ()
    | hd::tl -> print_min_dfa_transition hd; print_min_dfa_transition_table tl
 ;;
+
 let print_equivalence_result equivalence_result =
    let (booleanvalue, min_dfa_transition_table) = equivalence_result in
    print_bool booleanvalue; print_string "\n\n";
@@ -232,47 +284,64 @@ let print_candidates (a, b) =
    print_dfa_transition_table a ; print_string "\n"; print_dfa_transition_table b
 ;;
 
-(** Determine length of list
+(** Prints tuple as string
     Input:
-        list
+        tuple
+
     Output:
-        length of list
+        String of tuple
+
 *)
-let rec lenght ls =
-   match ls with
-   | [] -> 0
-   | [_] -> 1
-   | hd::tl -> 1+(lenght tl)
+let print_int_2_tuple a =
+   let (x,y) = a in
+   print_int x; print_string ", "; print_int y
 ;;
 
-(** Determine if list contains element
+(** Prints aquivalence classes
     Input:
-        element,
-        list
+        aquivalence-class
+
     Output:
-        boolean
+        String of table
+
 *)
-let rec contains element ls =
-   match ls with
-   | hd::tl -> if (hd = element) then true else (contains element tl)
-   | [] -> false
+let rec print_aquivalenzklasse a =
+   match a with
+   | [] -> ()
+   | hd::tl -> print_string "["; print_int_2_tuple hd; print_string "]\n"; print_aquivalenzklasse tl
 ;;
 
-(** Determine how often a element is in a list
-    Input:
-        element,
-        list
-    Output:
-        integer
-*)
-let rec containsAmount element ls =
-   match ls with
-   | hd::tl -> if (hd = element)
-      then (containsAmount element tl) +1
-      else (containsAmount element tl)
-   | []   -> 0
-;;
 
+
+
+(** Prints integer list as string
+    Input:
+        ls
+
+    Output:
+        string of  int list
+
+*)
+let rec string_of_int_list ls =
+   match ls with
+   | [] -> ""
+   | [x] -> (string_of_int x)
+   | hd::tl -> ((string_of_int hd) ^ ", " ^ (string_of_int_list tl))
+;;
+(** Prints integer list list as string
+    Input:
+        ls
+
+    Output:
+        integer list list as string
+
+*)
+let rec string_of_int_list_list ls =
+   match ls with
+   | [] -> ""
+   | [x] -> string_of_int_list x
+   | hd::tl -> "[" ^ ((string_of_int_list hd) ^ ", " ^ (string_of_int_list_list tl)) ^ "]"
+;;
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Funktionen ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 (** Makes a boolean false table for table-filling algorithm
@@ -468,32 +537,8 @@ let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
    in recursion 0
 ;;
 
-(** Prints tuple as string
-    Input:
-        tuple
 
-    Output:
-        String of tuple
 
-*)
-let print_int_2_tuple a =
-   let (x,y) = a in
-   print_int x; print_string ", "; print_int y
-;;
-
-(** Prints aquivalence classes
-    Input:
-        aquivalence-class
-
-    Output:
-        String of table
-
-*)
-let rec print_aquivalenzklasse a =
-   match a with
-   | [] -> ()
-   | hd::tl -> print_string "["; print_int_2_tuple hd; print_string "]\n"; print_aquivalenzklasse tl
-;;
 
 (** Prints aquivalence classes
     Input:
@@ -562,34 +607,7 @@ let rec aequivalenz_klasse_bilden ls =
 ;;
 
 
-(** Prints integer list as string
-    Input:
-        ls
 
-    Output:
-        string of  int list
-
-*)
-let rec string_of_int_list ls =
-   match ls with
-   | [] -> ""
-   | [x] -> (string_of_int x)
-   | hd::tl -> ((string_of_int hd) ^ ", " ^ (string_of_int_list tl))
-;;
-(** Prints integer list list as string
-    Input:
-        ls
-
-    Output:
-        integer list list as string
-
-*)
-let rec string_of_int_list_list ls =
-   match ls with
-   | [] -> ""
-   | [x] -> string_of_int_list x
-   | hd::tl -> "[" ^ ((string_of_int_list hd) ^ ", " ^ (string_of_int_list_list tl)) ^ "]"
-;;
 
 (** Gets List by Element
     Input:
@@ -732,7 +750,7 @@ let rec getListOfPointersNames ls =
    )
 ;;
 
-let checkforInputErrors dfa_transition_table = (*TODO: nicht erreichbare Zustände und gleiche rausschmeißen *)
+let checkforInputErrors dfa_transition_table = 
    (* checks if transition table is empty: *)
    if (dfa_transition_table = [])
       then failwith "One of the given dfa transition tables was empty"
@@ -770,7 +788,7 @@ let rec renameTransitions searchvalue replacevalue ls =
       (y, z, (if a=searchvalue then replacevalue else a), (if b=searchvalue then replacevalue else b))::(renameTransitions searchvalue replacevalue tl)
 ;;
 
-let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
+let minimize dfa_transition_table = 
    let rec recursion ls recls=
       match ls with
       | [] -> recls
@@ -786,24 +804,7 @@ let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
          
    in recursion dfa_transition_table []
 ;;
-(*let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
-   let rec recursion s = 
-   
-      let r0 = recursion s0 in
-      let r1 = recursion s1 in
-      let r = r0 @ r1 in
-      
-      if (contains s0 r)
-         then
-            if (contains s1 r)
-               then [s]
-               else [s] @ r1
-         else
-            if (contains s1 r)
-               then [s] @ r0
-               else [s] @ r0 @ r1 
-   in recursion dfa_transition_table
-;;*)
+
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
@@ -830,11 +831,8 @@ print_candidates candidates;;
 print_string "\n";;
 
 (* Step 1: Creates table with both DFA's and marks complete table as false with function make
-    Input:
-        (* TODO: write Inputs in here *)
-
-    Output:
-        table of booleans with false
+   set filling_table to:
+      table of booleans with 'false'´s
 *)
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
 (* let tabelle = (filling_table, rowWidth, columnHeight);; *)
@@ -843,11 +841,8 @@ let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekre
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
 (* Step 2: Mark state, which are not start-states (N, F)
-    Input:
-        (* TODO: write Inputs in here *)
-
-    Output:
-        table of booleans
+   set filling_table to:
+      table of booleans
 *)
 let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
 
@@ -875,56 +870,52 @@ let filling_table =
 match getStartList tab1 with
    | [startOfTab1] -> (
       match getStartList tab2 with
-      | [startOfTab2] -> 
-(
-let row = getPositioninTable candidateList startOfTab1 in
-let column = getPositioninTable candidateList startOfTab2 in
-if not (getNElement filling_table (encode2D (columnHeight, rowWidth) row column)) (* checkt, ob Startzustände unterscheidbar*)
-   then (
-(* Step 4: Create Aquivalence-Classes *)
-(* Step 4.1: Create Aquivalence-Tuples
-    Input:
-        (* TODO: write Inputs in here *)
+      | [startOfTab2] -> (
+         let row = getPositioninTable candidateList startOfTab1 in
+         let column = getPositioninTable candidateList startOfTab2 in
+         if not (getNElement filling_table (encode2D (columnHeight, rowWidth) row column)) (* checkt, ob Startzustände unterscheidbar*)
+            then (
+               (* Step 4: Create Aquivalence-Classes *)
+               (* Step 4.1: Create Aquivalence-Tuples
+                   Input:
+                       (* TODO: write Inputs in here *)
 
-    Output:
-        list of aquivalence-tuples
-*)
-let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table) in
-(* Prints aquivalence-tuples *)
-print_aquivalenzklasse aequivalenz_tuple;
-print_string "\n\n";
+                   Output:
+                       list of aquivalence-tuples
+               *)
+               let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table) in
+               (* Prints aquivalence-tuples *)
+               print_aquivalenzklasse aequivalenz_tuple;
+               print_string "\n\n";
 
-(* Step 4.2: Create Aquivalence-Classes
-    Input:
-        (* TODO: write Inputs in here *)
+               (* Step 4.2: Create Aquivalence-Classes
+                   Input:
+                       (* TODO: write Inputs in here *)
 
-    Output:
-        list of aquivalence-tuples
-*)
-let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in 
+                   Output:
+                       list of aquivalence-tuples
+               *)
+               let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in 
 
-(* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
-    Input:
-        (* TODO: write Inputs in here *)
+               (* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
+                   Input:
+                       (* TODO: write Inputs in here *)
 
-    Output:
-        DEA
-*)
-let min_dfa_transition_table = create_min_dfa_transition_table candidateList aequivalenzklasse in
-(* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList 
-[[1; 5; 6];[3; 9];[2; 7]]);; *)
+                   Output:
+                       DEA
+               *)
+               let min_dfa_transition_table = create_min_dfa_transition_table candidateList aequivalenzklasse in
+               (* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList 
+               [[1; 5; 6];[3; 9];[2; 7]]);; *)
 
-let result = (true, min_dfa_transition_table) in 
-print_equivalence_result result;
-)
-else (
-let result = (false, []) in
-print_equivalence_result result;
-)
-
-
-     
-)
+               let result = (true, min_dfa_transition_table) in 
+               print_equivalence_result result;
+            )
+            else (
+               let result = (false, []) in
+               print_equivalence_result result;
+            )
+         )
       | _ -> failwith "This will never trigger - just so there is no warning"
    )
    | _ -> failwith "This will never trigger - just so there is no warning"
