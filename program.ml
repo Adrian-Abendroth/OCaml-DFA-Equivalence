@@ -98,11 +98,8 @@ let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + ro
 *)
 let decode2D (columnHeight, rowWidth) value = (value / columnHeight, value % columnHeight);;
 
-
-
-
-
 (** Determine length of list
+
     Input:
         list
     Output:
@@ -116,6 +113,7 @@ let rec lenght ls =
 ;;
 
 (** Determine if list contains element
+
     Input:
         element,
         list
@@ -129,6 +127,7 @@ let rec contains element ls =
 ;;
 
 (** Determine how often a element is in a list
+
     Input:
         element,
         list
@@ -143,12 +142,10 @@ let rec containsAmount element ls =
    | []   -> 0
 ;;
 
-
-(* ~~~~~~~~~~~~~~~~~~~~~~~~ Print Functions ~~~~~~~~~~~~~~~~~~~~~~~~ *)
-
 (* ~~~~~~~~~~~~~~~~~~ Print Funktionen ~~~~~~~~~~~~~~~~~~~ *)
 
 (** Prints boolean as int 0 or 1
+
     Input:
         expression
     Output:
@@ -161,6 +158,7 @@ let print_boolInt expression  =
 ;;
 
 (** Prints boolean as string
+
     Input:
         expression
     Output:
@@ -453,7 +451,7 @@ let rec getPointByTransitions candidateList transitiontuple =
             else getPointByTransitions tl transitiontuple
 ;;
 
-(** 
+(**
 
     Input:
 
@@ -837,7 +835,7 @@ let rec getListOfPointersNames ls =
    )
 ;;
 
-let checkforInputErrors dfa_transition_table = 
+let checkforInputErrors dfa_transition_table =
    (* checks if transition table is empty: *)
    if (dfa_transition_table = [])
       then failwith "One of the given dfa transition tables was empty"
@@ -875,7 +873,7 @@ let rec renameTransitions searchvalue replacevalue ls =
       (y, z, (if a=searchvalue then replacevalue else a), (if b=searchvalue then replacevalue else b))::(renameTransitions searchvalue replacevalue tl)
 ;;
 
-let minimize dfa_transition_table = 
+let minimize dfa_transition_table =
    let rec recursion ls recls=
       match ls with
       | [] -> recls
@@ -995,7 +993,7 @@ match getStartList tab1 with
                    Output:
                        list of aquivalence-tuples
                *)
-               let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in 
+               let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in
 
                (* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
                    Input:
@@ -1005,10 +1003,10 @@ match getStartList tab1 with
                        DEA
                *)
                let min_dfa_transition_table = create_min_dfa_transition_table candidateList aequivalenzklasse in
-               (* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList 
+               (* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList
                [[1; 5; 6];[3; 9];[2; 7]]);; *)
 
-               let result = (true, min_dfa_transition_table) in 
+               let result = (true, min_dfa_transition_table) in
                print_equivalence_result result;
             )
             else (
@@ -1016,7 +1014,7 @@ match getStartList tab1 with
                print_equivalence_result result;
             )
          )
-      
+
       | _ -> failwith "This will never trigger - just so there is no warning"
    )
    | _ -> failwith "This will never trigger - just so there is no warning"
