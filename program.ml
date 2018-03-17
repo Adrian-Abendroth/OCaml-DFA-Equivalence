@@ -26,6 +26,8 @@ let xor x y = (x && !y)||(!x && y);;
 
 (** Modulo operator *)
 let ( % ) dividend divisor = dividend mod divisor;;
+
+(** String Operator *)
 let ( ^* ) str b =
    match b with
    | true -> str
@@ -33,9 +35,11 @@ let ( ^* ) str b =
 ;;
 
 (** Gets position from a list
+
     Input:
         list,
         element (position)
+
     Output:
         element in position
 
@@ -48,10 +52,12 @@ let rec getNElement ls element =
 ;;
 
 (** Sets value for an element in list from its position
+
     Input:
         list,
         element (position),
         value
+
     Output:
         list with new value in position element
 
@@ -67,26 +73,26 @@ let rec setNElement ls element value=
 
 
 
-
-
-
-
 (** Encodes a tuple to a Integer Value
+
     Input:
         columnHeight,
         rowWidth
         row,
         column
+
     Output:
         Integer
 *)
 let encode2D (columnHeight, rowWidth) row column = ((column * columnHeight) + row);;
 
 (** Decodes Integer Value to a tuple
+
     Input:
         columnHeight,
         rowWidth,
         value
+
     Output:
         Tuple for row and column
 *)
@@ -137,6 +143,9 @@ let rec containsAmount element ls =
    | []   -> 0
 ;;
 
+
+(* ~~~~~~~~~~~~~~~~~~~~~~~~ Print Functions ~~~~~~~~~~~~~~~~~~~~~~~~ *)
+
 (* ~~~~~~~~~~~~~~~~~~ Print Funktionen ~~~~~~~~~~~~~~~~~~~ *)
 
 (** Prints boolean as int 0 or 1
@@ -164,11 +173,13 @@ let print_bool expression  =
 ;;
 
 (** Prints table with boolean values to see which states are aquivalent
+
     Input:
         tuple of (columnHeight, rowWidth),
         list,
         row,
         column
+
     Output:
         table of booleans
 *)
@@ -184,8 +195,10 @@ let rec print_boolean_table (columnHeight, rowWidth) ls row column =
 ;;
 
 (** Prints integer list
+
     Input:
         list
+
     Output:
         integerlist as string
 *)
@@ -197,8 +210,10 @@ let rec print_int_list ls =
 ;;
 
 (** Prints integer list list
+
     Input:
         list
+
     Output:
         integer list list as string
 *)
@@ -210,8 +225,10 @@ let rec print_int_list_list ls =
 ;;
 
 (** Prints dfa_transitions
+
     Input:
         quadtuple (state_type, name, partner0, partner1)
+
     Output:
         dfa_transitions as string table
 *)
@@ -227,8 +244,10 @@ let rec print_dfa_transition (state_type, name, partner0, partner1) =
 ;;
 
 (** Prints min_dfa_transition
+
     Input:
         quadtuple (state_type, name, partner0, partner1)
+
     Output:
         min_dfa_transition as string
 *)
@@ -244,8 +263,10 @@ let rec print_min_dfa_transition (state_type, name, partner0, partner1) =
 ;;
 
 (** Prints dfa_transition as table
+
     Input:
         quadtuple (state_type, name, partner0, partner1)
+
     Output:
         min_dfa_transition as string table
 *)
@@ -257,8 +278,10 @@ let rec print_dfa_transition_table dfa_transition_table =
 
 
 (** Prints min_dfa_transition_table
+
     Input:
         min_dfa_transition_table
+
     Output:
         min_dfa_transition  as string table
 *)
@@ -275,8 +298,10 @@ let print_equivalence_result equivalence_result =
 ;;
 
 (** Prints candidates
+
     Input:
         candidates as tuple (a,b)
+
     Output:
         canditates as string table
 *)
@@ -284,12 +309,11 @@ let print_candidates (a, b) =
    print_dfa_transition_table a ; print_string "\n"; print_dfa_transition_table b
 ;;
 
+
 (** Prints tuple as string
+
     Input:
         tuple
-
-    Output:
-        String of tuple
 
 *)
 let print_int_2_tuple a =
@@ -297,7 +321,9 @@ let print_int_2_tuple a =
    print_int x; print_string ", "; print_int y
 ;;
 
+
 (** Prints aquivalence classes
+
     Input:
         aquivalence-class
 
@@ -314,7 +340,9 @@ let rec print_aquivalenzklasse a =
 
 
 
+
 (** Prints integer list as string
+
     Input:
         ls
 
@@ -343,12 +371,15 @@ let rec string_of_int_list_list ls =
    | hd::tl -> "[" ^ ((string_of_int_list hd) ^ ", " ^ (string_of_int_list_list tl)) ^ "]"
 ;;
 
-(* ~~~~~~~~~~~~~~~~~~~~~~~~ Funktionen ~~~~~~~~~~~~~~~~~~~~~~~~ *)
+
+(* ~~~~~~~~~~~~~~~~~~~~~~~~ Functions ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 (** Makes a boolean false table for table-filling algorithm
+
     Input:
         ls,
         count,
         element
+
     Output:
         boolean
 *)
@@ -359,8 +390,10 @@ let rec make ls count element =
 ;;
 
 (** Determine if a state is a start-state
+
     Input:
         state
+
     Output:
         boolean
 *)
@@ -369,8 +402,10 @@ let isStart zustand =
 ;;
 
 (** Determine if a state is a final-state
+
     Input:
         state
+
     Output:
         boolean
 *)
@@ -379,9 +414,11 @@ let isFinal zustand =
 ;;
 
 (** Shows where a state is going to transitions
+
     Input:
         canditateList,
         knot
+
     Output:
         gets transitions of knot
 *)
@@ -396,6 +433,16 @@ let getTransitionByPoint candidateList knot =
    in recursion candidateList
 ;;
 
+(** Shows point of transition
+
+    Input:
+        candidateList,
+        transitiontuple
+
+    Output:
+        gets knot
+
+*)
 let rec getPointByTransitions candidateList transitiontuple =
       match candidateList with
       | [] -> (false, 0) (* returnen 0, als 'false' Wert, Programm fängt das false ab und ignoriert die 0 dann*)
@@ -406,6 +453,14 @@ let rec getPointByTransitions candidateList transitiontuple =
             else getPointByTransitions tl transitiontuple
 ;;
 
+(** 
+
+    Input:
+
+
+    Output:
+
+*)
 let getTransitionByListOfPoints knotls =
    let rec recursion ls =
       match ls with
@@ -418,9 +473,11 @@ let getTransitionByListOfPoints knotls =
 ;;
 
 (** Get state of a knot
+
     Input:
         canditateList,
         knot
+
     Output:
         state of a knot
 *)
@@ -436,9 +493,11 @@ let getStateByPoint candidateList knot =
 ;;
 
 (** Get Position in table of a knot
+
     Input:
         canditateList,
         knot
+
     Output:
         Position of knot
 *)
@@ -455,10 +514,12 @@ let getPositioninTable candidateList knot =
 
 
 (** Function for table-filling-algorithm. Determines if the table don't have an aquivalence class
+
     Input:
         candidateList (columnHeight, rowWidth),
         ls,
         element
+
     Output:
         table of booleans
 *)
@@ -471,9 +532,11 @@ let strike_out_element candidateList (columnHeight, rowWidth) ls element =
 ;;
 
 (** Checks if a states of boolean-table are different
+
     Input:
         candidateList (columnHeight, rowWidth),
         where
+
     Output:
         boolean
 *)
@@ -485,6 +548,7 @@ let areDifferentState candidateList (columnHeight, rowWidth) where =
 ;;
 
 (** Marks state in table of booleans when they are final and start
+
     Input:
         candidateList (columnHeight, rowWidth)
         endvalue.
@@ -507,13 +571,15 @@ let strike_finals candidateList (columnHeight, rowWidth) endvalue ls =
 ;;
 
 (** Computes aequivalence classes
+
     Input:
         candidateList (columnHeight, rowWidth)
         endvalue.
         ls
 
+
     Output:
-    aequivalenz classes as a table of string
+        aequivalenz classes as a table of string
 
 *)
 let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
@@ -539,8 +605,8 @@ let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
 
 
 
-
 (** Prints aquivalence classes
+
     Input:
         aquivalence-class
 
@@ -561,13 +627,15 @@ let rec get_aequivalenztuple element ls =
 ;;
 
 (** Function to combine tuple of aquivalence-classes to aquivalence-class
+
     Input:
         ls,
         aquivalence-classes
 
+
     Output:
         table of booleans
-        
+
    Example:
       [(0,1);(0,2);(1,2);(2,3); (4,5);(4,6);(5,6)] [0;1;2;3]
       ->
@@ -585,12 +653,13 @@ let rec streiche_aequi ls aequi =
 ;;
 
 (** Builds aquivalence-classes
+
    Input:
       ls
 
    Output:
       aquivalence-classes
-        
+
    Example:
       [(0,1);(0,2);(1,2);(2,3); (4,5);(4,6);(5,6)]
       ->
@@ -606,10 +675,24 @@ let rec aequivalenz_klasse_bilden ls =
       aequi :: (aequivalenz_klasse_bilden (streiche_aequi ls aequi))
 ;;
 
+(** Prints integer list as string
 
+    Input:
+        ls
 
+    Output:
+        string of  int list
+
+*)
+let rec string_of_int_list ls =
+   match ls with
+   | [] -> ""
+   | [x] -> (string_of_int x)
+   | hd::tl -> ((string_of_int hd) ^ ", " ^ (string_of_int_list tl))
+;;
 
 (** Gets List by Element
+
     Input:
         element,
         ls
@@ -628,6 +711,7 @@ let rec getListbyElement element ls =
 ;;
 
 (** Determine if a state is a start-type (SF || S)
+
     Input:
         canditateList
         ls
@@ -643,6 +727,7 @@ let rec determineStart candidateList ls =
 ;;
 
 (** Determine if a state is a final-type (SF || F)
+
     Input:
         canditateList
         ls
@@ -658,6 +743,7 @@ let rec determineFinal candidateList ls =
 ;;
 
 (** Determine state-type of canditate list and list
+
     Input:
         canditateList
         ls
@@ -698,6 +784,7 @@ let create_min_dfa_transition_table candidateList aequiLS =
 ;;
 
 (** Gets startList
+
     Input:
         canditateList
 
@@ -781,9 +868,9 @@ let checkforInputErrors dfa_transition_table =
 ;;
 
 let rec renameTransitions searchvalue replacevalue ls =
-   match ls with 
+   match ls with
    | [] -> []
-   | hd::tl -> 
+   | hd::tl ->
       let (y, z, a, b) = hd in
       (y, z, (if a=searchvalue then replacevalue else a), (if b=searchvalue then replacevalue else b))::(renameTransitions searchvalue replacevalue tl)
 ;;
@@ -799,9 +886,9 @@ let minimize dfa_transition_table =
             then (*let recls = renameTransitions a point recls in
                let tl = renameTransitions a point tl in
                recursion ls recls *)
-               recursion (renameTransitions a point tl) (renameTransitions a point recls) 
-            else recursion tl (recls @ [hd]) 
-         
+               recursion (renameTransitions a point tl) (renameTransitions a point recls)
+            else recursion tl (recls @ [hd])
+
    in recursion dfa_transition_table []
 ;;
 
@@ -833,6 +920,12 @@ print_string "\n";;
 (* Step 1: Creates table with both DFA's and marks complete table as false with function make
    set filling_table to:
       table of booleans with 'false'´s
+
+    Input:
+        (* TODO: write Inputs in here *)
+
+    Output:
+        table of booleans with false
 *)
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
 (* let tabelle = (filling_table, rowWidth, columnHeight);; *)
@@ -843,6 +936,12 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 (* Step 2: Mark state, which are not start-states (N, F)
    set filling_table to:
       table of booleans
+
+    Input:
+        (* TODO: write Inputs in here *)
+
+    Output:
+        table of booleans
 *)
 let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
 
@@ -850,6 +949,7 @@ let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWi
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
 
 (* Step 3: Mark state, which are different
+
     Input:
         (* Unit *)
 
@@ -916,6 +1016,7 @@ match getStartList tab1 with
                print_equivalence_result result;
             )
          )
+      
       | _ -> failwith "This will never trigger - just so there is no warning"
    )
    | _ -> failwith "This will never trigger - just so there is no warning"
