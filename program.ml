@@ -399,7 +399,7 @@ let getTransitionByPoint candidateList knot =
 let rec getPointByTransitions candidateList transitiontuple =
       match candidateList with
       | [] -> (false, 0) (* returnen 0, als 'false' Wert, Programm fängt das false ab und ignoriert die 0 dann*)
-      | hd::tl -> 
+      | hd::tl ->
          let (_, t, t0, t1) = hd in
          if transitiontuple = (t0,t1)
             then (true, t)
