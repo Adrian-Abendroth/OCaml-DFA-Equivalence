@@ -1085,10 +1085,12 @@ let tabelle6 = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)];; (* triggers  Error 4*
 
 let tabelle7 = [(S,5,5,2); (N,2,3,4); (F,3,3,2); (F,4,3,2)];; (* triggers Error 5 *)
 
+let tabelle1m = [(S,40,40,50); (N,50,60,70); (F,60,60,50); (F,70,60,50)];; (* DEA 1 *)
+let tabelle2m = [(S,80,90,100); (N,90,80,110); (N,100,120,120); (N,110,120,120); (F,120,120,110); (F,130,130,120)];; (* DEA 2 *)
 
 
-
-let candidates = (minimize (checkforInputErrors tabelle7), minimize (checkforInputErrors tabelle2));; (* checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points *)
+(* Step 0: minimizing functions dfa_transition_table *)
+let candidates = (minimize (checkforInputErrors tabelle1), minimize (checkforInputErrors tabelle2));; (* checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points *)
 
 
 
@@ -1098,7 +1100,8 @@ let candidateList = tab1 @ tab2;;
 
 if (containsMultiple (getListOfPointerNames candidateList)) then failwith "Pointer name assignend multiple times across both tables";; (*checks if there are points in tab1 that have the same name as in tab2*)
 
-let rowWidth, columnHeight = (lenght tab1)+(lenght tab2), (lenght tab1)+(lenght tab2);;
+let rowWidth = (lenght tab1)+(lenght tab2);;
+let columnHeight = (lenght tab1)+(lenght tab2);;
 
 
 
@@ -1111,15 +1114,8 @@ print_string "\n";;
 (* Step 1: Creates table with both DFA's and marks complete table as false with function make
    set filling_table to:
       table of booleans with 'false'´s
-
-    Input:
-        (* TODO: write Inputs in here *)
-
-    Output:
-        table of booleans with false
 *)
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
-(* let tabelle = (filling_table, rowWidth, columnHeight);; *)
 
 (* Prints table of boolean false of both DFA's for step 1 *)
 print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
@@ -1127,12 +1123,6 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 (* Step 2: Mark state, which are not start-states (N, F)
    set filling_table to:
       table of booleans
-
-    Input:
-        (* TODO: write Inputs in here *)
-
-    Output:
-        table of booleans
 *)
 let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
 
@@ -1141,11 +1131,8 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 
 (* Step 3: Mark state, which are different
 
-    Input:
-        (* Unit *)
-
-    Output:
-        table of booleans
+    set filling_table to:
+      updated filling_table with strike_out algorithm
 *)
 let filling_table =
    let rec recursion ft = (
@@ -1158,7 +1145,10 @@ let filling_table =
    in recursion filling_table
 ;;
 
-match getStartList tab1 with
+
+(* Step 4+5 *)
+let result =
+   match getStartList tab1 with
    | [startOfTab1] -> (
       match getStartList tab2 with
       | [startOfTab2] -> (
@@ -1168,46 +1158,37 @@ match getStartList tab1 with
             then (
                (* Step 4: Create Aquivalence-Classes *)
                (* Step 4.1: Create Aquivalence-Tuples
-                   Input:
-                       (* TODO: write Inputs in here *)
-
-                   Output:
+                   set aequivalenz_tuple to:
                        list of aquivalence-tuples
                *)
                let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table) in
-               (* Prints aquivalence-tuples *)
+               
                print_aquivalenzklasse aequivalenz_tuple;
                print_string "\n\n";
 
                (* Step 4.2: Create Aquivalence-Classes
-                   Input:
-                       (* TODO: write Inputs in here *)
-
-                   Output:
-                       list of aquivalence-tuples
+                   set aequivalenzklasse to:
+                       list of aquivalence-classes
                *)
                let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in
 
                (* Step 5: If both DFA's are aquivalent, minimize DFA's. Else
-                   Input:
-                       (* TODO: write Inputs in here *)
-
-                   Output:
-                       DEA
+                   set min_dfa_transition_table to:
+                       minimized dfa_transition_table
+                   
+                   returnning minimized min_dfa_transition_table and boolean representing if DFA were equivalent
                *)
                let min_dfa_transition_table = create_min_dfa_transition_table candidateList aequivalenzklasse in
-               (* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList
-               [[1; 5; 6];[3; 9];[2; 7]]);; *)
 
-               let result = (true, min_dfa_transition_table) in
-               print_equivalence_result result;
+               (true, min_dfa_transition_table)
             )
             else (
-               let result = (false, []) in
-               print_equivalence_result result;
+               (false, [])
             )
          )
 
       | _ -> failwith "This will never trigger - just so there is no warning"
    )
    | _ -> failwith "This will never trigger - just so there is no warning"
+;;
+print_equivalence_result result;;
