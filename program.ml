@@ -808,12 +808,11 @@ let minimize dfa_transition_table = (*TODO: doppelte Eintrge entfernen*)
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Variabeln ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 let tabelle1  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
 let tabelle2  = [(S,5,6,7);(N,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 2 *)
+let tabelle5  = [(S,5,6,7);(F,6,5,8);(N,7,9,9);(N,8,9,9);(F,9,9,8);(F,10,10,9)] ;; (* DEA 3 *)
 
-let tabelle3  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
-let tabelle4  = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)] ;; (* DEA 1 *)
-let tabelle5  = [(S,5,6,7);(N,6,5,8);(F,7,5,9);(N,8,9,9);(F,9,6,8);(F,10,10,9);(N,1,5,6)] ;; (* DEA 2 *)
 
-let candidates  = (minimize (checkforInputErrors tabelle1), minimize (checkforInputErrors tabelle2));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
+
+let candidates  = (minimize (checkforInputErrors tabelle1), minimize (checkforInputErrors tabelle5));; (*checks for errors in Inputs (like: empty, multipletimes same name, points to invalid point) and deletes unreachable and duplicated points*)
 
 
 
@@ -880,19 +879,8 @@ match getStartList tab1 with
 (
 let row = getPositioninTable candidateList startOfTab1 in
 let column = getPositioninTable candidateList startOfTab2 in
-if getNElement filling_table (encode2D (columnHeight, rowWidth) row column) (* checkt, ob Startzustände unterscheidbar*)
+if not (getNElement filling_table (encode2D (columnHeight, rowWidth) row column)) (* checkt, ob Startzustände unterscheidbar*)
    then (
-(*
-(S/SF, k, _, _)
-
-
-ROW = getPositioninTable LISTe1 Knoten
-Collumn = getPositioninTable LISTe2 Knoten
-if getNElement filling_table (encode2D (columnHeight, rowWidth) ROW COLUMN)
-
-
-*)
-
 (* Step 4: Create Aquivalence-Classes *)
 (* Step 4.1: Create Aquivalence-Tuples
     Input:
@@ -922,14 +910,17 @@ let aequivalenzklasse = (aequivalenz_klasse_bilden aequivalenz_tuple) in
     Output:
         DEA
 *)
-print_min_dfa_transition_table (create_min_dfa_transition_table candidateList aequivalenzklasse);
+let min_dfa_transition_table = create_min_dfa_transition_table candidateList aequivalenzklasse in
 (* print_min_dfa_transition_table (create_min_dfa_transition_table candidateList 
 [[1; 5; 6];[3; 9];[2; 7]]);; *)
 
-)
-else
-let result = (false, []) in 
+let result = (true, min_dfa_transition_table) in 
 print_equivalence_result result;
+)
+else (
+let result = (false, []) in
+print_equivalence_result result;
+)
 
 
      
