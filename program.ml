@@ -494,7 +494,7 @@ let getTransitionByPoint candidateList knot =
 *)
 let rec getPointByTransitions candidateList transitiontuple =
       match candidateList with
-      | [] -> (false, 0) (* returns 0, als 'false' Wert, Programm fängt das 'false' ab und ignoriert die 0 dann*)
+      | [] -> (false, 0) (* returns 0, als 'false' Wert, Programm fängt das 'false' ab und ignoriert die 0 dann *)
       | hd::tl ->
          let (_, t, t0, t1) = hd in
          if transitiontuple = (t0,t1)
@@ -676,9 +676,9 @@ let aequivalenz_klasse candidateList (columnHeight, rowWidth) endvalue ls =
       if i <= endvalue
          then(
             let (x,y) = decode2D (columnHeight, rowWidth) i in
-            if (not (x=y)) (* Herausfilter der Diagonalen als Äquivalenztupel*)
+            if (not (x=y)) (* Herausfilter der Diagonalen als Äquivalenztupel *)
                then (
-                  if not (getNElement ls i) (* falls noch nicht markiert*)
+                  if not (getNElement ls i) (* falls noch nicht markiert *)
                      then (
                         let (_, a, _, _) = (getNElement candidateList x) in
                         let (_, b, _, _) = (getNElement candidateList y) in
@@ -1061,10 +1061,7 @@ let minimize dfa_transition_table =
          let (_, a, a0, a1) = hd in
          let (booleanvalue, point) = getPointByTransitions recls (a0, a1) in
          if booleanvalue
-            then (*let recls = renameTransitions a point recls in
-               let tl = renameTransitions a point tl in
-               recursion ls recls *)
-               recursion (renameTransitions a point tl) (renameTransitions a point recls)
+            then recursion (renameTransitions a point tl) (renameTransitions a point recls)
             else recursion tl (recls @ [hd])
 
    in recursion dfa_transition_table []
@@ -1085,8 +1082,8 @@ let tabelle6 = [(S,1,1,2);(N,2,3,4);(F,3,3,2);(F,4,3,2)];; (* triggers  Error 4*
 
 let tabelle7 = [(S,5,5,2); (N,2,3,4); (F,3,3,2); (F,4,3,2)];; (* triggers Error 5 *)
 
-let tabelle1m = [(S,40,40,50); (N,50,60,70); (F,60,60,50); (F,70,60,50)];; (* DEA 1 *)
-let tabelle2m = [(S,80,90,100); (N,90,80,110); (N,100,120,120); (N,110,120,120); (F,120,120,110); (F,130,130,120)];; (* DEA 2 *)
+let tabelle1n = [(S,40,40,50); (N,50,60,70); (F,60,60,50); (F,70,60,50)];; (* DEA 1 with different names *)
+let tabelle2n = [(S,80,90,100); (N,90,80,110); (N,100,120,120); (N,110,120,120); (F,120,120,110); (F,130,130,120)];; (* DEA 2 with different names *)
 
 
 (* Step 0: minimizing functions dfa_transition_table *)
@@ -1098,7 +1095,7 @@ let candidates = (minimize (checkforInputErrors tabelle1), minimize (checkforInp
 let (tab1, tab2) = candidates;;
 let candidateList = tab1 @ tab2;;
 
-if (containsMultiple (getListOfPointerNames candidateList)) then failwith "Pointer name assignend multiple times across both tables";; (*checks if there are points in tab1 that have the same name as in tab2*)
+if (containsMultiple (getListOfPointerNames candidateList)) then failwith "Pointer name assignend multiple times across both tables";; (* checks if there are points in tab1 that have the same name as in tab2*)
 
 let rowWidth = (lenght tab1)+(lenght tab2);;
 let columnHeight = (lenght tab1)+(lenght tab2);;
@@ -1154,7 +1151,7 @@ let result =
       | [startOfTab2] -> (
          let row = getPositioninTable candidateList startOfTab1 in
          let column = getPositioninTable candidateList startOfTab2 in
-         if not (getNElement filling_table (encode2D (columnHeight, rowWidth) row column)) (* checkt, ob Startzustände unterscheidbar*)
+         if not (getNElement filling_table (encode2D (columnHeight, rowWidth) row column)) (* checkt, ob Startzustände unterscheidbar *)
             then (
                (* Step 4: Create Aquivalence-Classes *)
                (* Step 4.1: Create Aquivalence-Tuples
