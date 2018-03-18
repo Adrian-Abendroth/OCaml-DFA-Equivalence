@@ -1,3 +1,5 @@
+let debugPRINT = true;; (* wenn 'true': Ausgabe von debug print Anweisung in Console, print Anweisung der einzelnen Schritte *)
+
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Typ-Definitions ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 
 type state_type = S | F | N | SF;; (* S = Startzustand; F = Finalzustand; N = Normaler Zustand *)
@@ -1105,8 +1107,8 @@ let columnHeight = (lenght tab1)+(lenght tab2);;
 
 (* ~~~~~~~~~~~~~~~~~~~~~~~~ Main-Programm ~~~~~~~~~~~~~~~~~~~~~~~~ *)
 
-print_candidates candidates;;
-print_string "\n";;
+if debugPRINT then (print_string "Minimierte Kandidaten:\n"; print_candidates candidates; print_string "\n";);;
+
 
 (* Step 1: Creates table with both DFA's and marks complete table as false with function make
    set filling_table to:
@@ -1115,7 +1117,7 @@ print_string "\n";;
 let filling_table = make [] (rowWidth * columnHeight) false;; (* true -> angekreuzt *)
 
 (* Prints table of boolean false of both DFA's for step 1 *)
-print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
+if debugPRINT then (print_string "Leerer Filling Table:\n"; print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight);;
 
 (* Step 2: Mark state, which are not start-states (N, F)
    set filling_table to:
@@ -1124,7 +1126,7 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
 let filling_table = strike_finals candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table;;
 
 (* Print table of booleans for step 2 *)
-print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight;;
+if debugPRINT then (print_string "Filling Table nach Schritt 0:\n"; print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight);;
 
 (* Step 3: Mark state, which are different
 
@@ -1132,14 +1134,21 @@ print_boolean_table (columnHeight, rowWidth) filling_table rowWidth columnHeight
       updated filling_table with strike_out algorithm
 *)
 let filling_table =
-   let rec recursion ft = (
+   let rec recursion ft step = (
       let new_filling_table = (strike_out candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) ft) in
 
       if (ft = new_filling_table)
          then (ft)
-         else (print_boolean_table (columnHeight, rowWidth) new_filling_table rowWidth columnHeight; recursion new_filling_table)
+         else (
+            if (debugPRINT)
+               then (
+                  print_string ("Filling Table nach Schritt " ^ (string_of_int step) ^ ":\n");
+                  print_boolean_table (columnHeight, rowWidth) new_filling_table rowWidth columnHeight;
+               );
+               recursion new_filling_table (step + 1);
+         );
    );
-   in recursion filling_table
+   in recursion filling_table 1
 ;;
 
 
@@ -1160,8 +1169,7 @@ let result =
                *)
                let aequivalenz_tuple = (aequivalenz_klasse candidateList (columnHeight, rowWidth) ((rowWidth * columnHeight)-1) filling_table) in
                
-               print_aquivalenzklasse aequivalenz_tuple;
-               print_string "\n\n";
+               if debugPRINT then (print_string "Äqzuivalenztupel:\n"; print_aquivalenzklasse aequivalenz_tuple; print_string "\n\n");
 
                (* Step 4.2: Create Aquivalence-Classes
                    set aequivalenzklasse to:
@@ -1188,4 +1196,5 @@ let result =
    )
    | _ -> failwith "This will never trigger - just so there is no warning"
 ;;
+print_string "Ausgabe:\n";;
 print_equivalence_result result;;
